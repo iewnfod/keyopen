@@ -56,7 +56,7 @@ for (let i = 1; i <= 12; i ++) {
     let ele = document.createElement('tr');
     table_body.appendChild(ele);
     ele.innerHTML = `
-        <th>
+        <th id="${f}_th" class="f-th">
             <abbr>${f}</abbr>
         </th>
         <td>
@@ -85,3 +85,13 @@ for (let i = 1; i <= 12; i ++) {
         registerBackend(e.target.name, e.target.value);
     });
 }
+
+function heightSynchronize() {
+    for (let i = 1; i <= 12; i ++) {
+        let th_ele = document.getElementById(`F${i}_th`);
+        let tr_ele = th_ele.parentElement;
+        th_ele.style.height = `${tr_ele.offsetHeight}px`;
+    }
+}
+
+heightSynchronize();
