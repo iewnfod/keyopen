@@ -86,28 +86,14 @@ fn main() {
     config::init();
     load_binding();
 
-    let open_menu = CustomMenuItem::new("open".to_string(), "Open Window");
-    let quit_menu = CustomMenuItem::new("quit".to_string(), "Quit");
-    let tray_menu = SystemTrayMenu::new()
-        .add_item(open_menu)
-        .add_item(quit_menu);
-
     tauri::Builder::default()
-        .system_tray(SystemTray::new().with_menu(tray_menu))
+        .system_tray(SystemTray::new())
         .on_system_tray_event(|app, event| {
             match event {
-                SystemTrayEvent::MenuItemClick { id, .. } => {
-                    match id.as_str() {
-                        "open" => {
-                            let window = app.get_window("main").unwrap();
-                            window.show().unwrap();
-                            window.set_focus().unwrap();
-                        },
-                        "quit" => {
-                            std::process::exit(0);
-                        },
-                        _ => {}
-                    }
+                SystemTrayEvent::LeftClick { .. } => {
+                    let window = app.get_window("main").unwrap();
+                    window.show().unwrap();
+                    window.set_focus().unwrap();
                 },
                 _ => {}
             }
