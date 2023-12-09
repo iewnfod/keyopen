@@ -96,7 +96,7 @@ fn main() {
         .system_tray(SystemTray::new().with_menu(tray_menu))
         .on_system_tray_event(|app, event| {
             match event {
-                SystemTrayEvent::MenuItemClick { tray_id, id, .. } => {
+                SystemTrayEvent::MenuItemClick { id, .. } => {
                     match id.as_str() {
                         "open" => {
                             let window = app.get_window("main").unwrap();
