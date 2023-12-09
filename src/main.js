@@ -63,6 +63,7 @@ for (let i = 1; i <= 12; i ++) {
             <div class="form-group">
                 <input id="${f}_input" name="${f}">
                 <button class="form-group-btn btn-primary" id="${f}_bt" name="${f}">Select</button>
+                <button class="form-group-btn btn-dark" id="${f}_clear_bt" name="${f}">Clear</button>
             </div>
         </td>
     `;
@@ -83,6 +84,12 @@ for (let i = 1; i <= 12; i ++) {
 
     document.getElementById(`${f}_input`).addEventListener('change', (e) => {
         registerBackend(e.target.name, e.target.value);
+    });
+
+    document.getElementById(`${f}_clear_bt`).addEventListener('click', (e) => {
+        let name = e.target.name;
+        document.getElementById(`${name}_input`).value = '';
+        registerBackend(name, '');
     });
 }
 
