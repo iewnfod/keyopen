@@ -106,8 +106,11 @@ fn main() {
                 RunEvent::WindowEvent { label, event, .. } => {
                     match event {
                         WindowEvent::CloseRequested { api, .. } => {
-                            let win = app.get_window(label.as_str()).unwrap();
-                            win.hide().unwrap();
+                            tauri::AppHandle::hide(
+                                &app.get_window(label.as_str())
+                                    .unwrap()
+                                    .app_handle()
+                            ).unwrap();
                             api.prevent_close();
                         },
                         _ => {}
