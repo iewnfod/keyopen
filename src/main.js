@@ -1,6 +1,3 @@
-// import { invoke } from "@tauri-apps/api/tauri";
-
-// const invoke = window.__TAURI__.invoke;
 import { invoke } from "./lib/api/tauri.js";
 import { register, unregister, isRegistered } from "./lib/api/globalShortcut.js";
 import { open } from "./lib/api/dialog.js";
