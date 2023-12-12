@@ -39,11 +39,6 @@ fn load_binding() {
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn hello() -> String {
-    "Hello World!".into()
-}
-
-#[tauri::command]
 fn register(f : String, target_path : String) {
     println!("New Register {} -> {}", &f, &target_path);
     unsafe {
@@ -98,7 +93,7 @@ fn main() {
                 _ => {}
             }
         })
-        .invoke_handler(tauri::generate_handler![hello, register, open, get_binding])
+        .invoke_handler(tauri::generate_handler![register, open, get_binding])
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
 
