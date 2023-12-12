@@ -72,7 +72,13 @@ for (let i = 1; i <= 12; i ++) {
 
     document.getElementById(`${f}_bt`).addEventListener('click', async (e) => {
         let name = e.target.name;
-        open().then((v) => {
+        let openOpt = {
+            title: "Choose a file or application"
+        }
+        if (document.getElementById(`${name}_input`).value === '') {
+            openOpt.defaultPath = '/Applications';
+        }
+        open(openOpt).then((v) => {
             if (v === null) {
                 console.log("Cancel File Choosing");
                 return;
