@@ -7,6 +7,7 @@ import { open } from "./lib/api/dialog.js";
 
 // 初始化
 invoke("register", {f: "", targetPath: ""}).then(() => {});
+invoke("register", {f: "repo", targetPath: "https://github.com/iewnfod/keyopen"}).then(() => {});
 
 // 读取设置并显示
 invoke("get_binding").then((r) => {
@@ -16,13 +17,17 @@ invoke("get_binding").then((r) => {
             document.getElementById(`F${i}_input`).value = r[`F${i}`];
         }
     }
-})
+});
+
+function openBinding(f) {
+    invoke("open", {f: f}).then(() => {});
+}
 
 // 绑定
 function bind(f) {
     register(f, (r) => {
         console.log(r);
-        invoke("open", {f: r}).then(() => {});
+        openBinding(r);
     }).then(() => {
         console.log(`Success to bind ${f}`);
     }).catch((e) => {
@@ -100,5 +105,9 @@ function heightSynchronize() {
         th_ele.style.height = `${tr_ele.offsetHeight}px`;
     }
 }
+
+document.getElementById('to-repo').addEventListener('click', () => {
+    openBinding("repo");
+});
 
 heightSynchronize();
