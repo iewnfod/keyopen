@@ -1,6 +1,6 @@
 [package]
 name = "keyopen"
-version = "1.0.1"
+version = "1.0.2"
 description = "An App to Open Files or Other Applications Quickly"
 authors = ["iewnfod"]
 license = ""
