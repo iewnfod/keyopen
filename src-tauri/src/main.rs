@@ -4,7 +4,7 @@
 use std::{collections::HashMap, process::Command, path::Path, fs::{File, self}};
 
 use lazy_mut::lazy_mut;
-use tauri::{SystemTray, SystemTrayEvent, Manager, RunEvent, WindowEvent};
+use tauri::{SystemTray, SystemTrayEvent, Manager, RunEvent, WindowEvent, ActivationPolicy};
 
 mod config;
 
@@ -86,7 +86,7 @@ fn main() {
     config::init();
     load_binding();
 
-    tauri::Builder::default()
+    let mut app = tauri::Builder::default()
         .system_tray(SystemTray::new())
         .on_system_tray_event(|app, event| {
             match event {
@@ -100,23 +100,26 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![hello, register, open, get_binding])
         .build(tauri::generate_context!())
-        .expect("error while running tauri application")
-        .run(|app, event| {
-            match event {
-                RunEvent::WindowEvent { label, event, .. } => {
-                    match event {
-                        WindowEvent::CloseRequested { api, .. } => {
-                            tauri::AppHandle::hide(
-                                &app.get_window(label.as_str())
-                                    .unwrap()
-                                    .app_handle()
-                            ).unwrap();
-                            api.prevent_close();
-                        },
-                        _ => {}
-                    }
-                },
-                _ => {}
-            }
-        });
+        .expect("error while running tauri application");
+
+    app.set_activation_policy(ActivationPolicy::Accessory);
+
+    app.run(|app, event| {
+        match event {
+            RunEvent::WindowEvent { label, event, .. } => {
+                match event {
+                    WindowEvent::CloseRequested { api, .. } => {
+                        tauri::AppHandle::hide(
+                            &app.get_window(label.as_str())
+                                .unwrap()
+                                .app_handle()
+                        ).unwrap();
+                        api.prevent_close();
+                    },
+                    _ => {}
+                }
+            },
+            _ => {}
+        }
+    });
 }
