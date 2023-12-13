@@ -1398,6 +1398,7 @@ name = "keyopen"
 version = "1.0.3"
 dependencies = [
  "lazy_mut",
+ "plist",
  "serde",
  "serde_json",
  "tauri",

@@ -77,6 +77,24 @@ fn get_binding() -> HashMap<String, String> {
     }
 }
 
+#[tauri::command]
+fn get_settings() -> HashMap<String, bool> {
+    let mut map = HashMap::new();
+    map.insert("startup".to_string(), config::startup_exists());
+    map
+}
+
+#[tauri::command]
+fn toggle_settings(name: String) {
+    println!("Toggle setting {}", name);
+    match name.as_str() {
+        "startup" => {
+            config::toggle_startup();
+        },
+        _ => {}
+    }
+}
+
 fn main() {
     config::init();
     load_binding();
@@ -93,7 +111,7 @@ fn main() {
                 _ => {}
             }
         })
-        .invoke_handler(tauri::generate_handler![register, open, get_binding])
+        .invoke_handler(tauri::generate_handler![register, open, get_binding, get_settings, toggle_settings])
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
 

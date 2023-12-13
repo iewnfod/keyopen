@@ -43,7 +43,7 @@
 	<div data-tauri-drag-region class="info" style="padding-top: 10px">
 		<h2>Key Open</h2>
 		<span>Select a file or application, and it will be opened when pressing the corresponding key.</span>
-		<span>You may also write the path of a directory or a URL. </span>
+		<span>You may also write the path of a directory or a URL by yourself. </span>
 	</div>
 	<table class="table bordered">
 		<thead>
@@ -55,6 +55,12 @@
 		<tbody id="table_body">
 		</tbody>
 	</table>
+	<div class="info">
+		<div>
+			<input type="checkbox" id="startup">
+			<label for="startup">Start at Login</label>
+		</div>
+	</div>
 	<div class="info">
 		<span>View more information and all releases on <a id="to-repo" class="link">Github</a></span>
 	</div>

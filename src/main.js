@@ -109,8 +109,28 @@ function heightSynchronize() {
     }
 }
 
+// 同步高度
 document.getElementById('to-repo').addEventListener('click', () => {
     openBinding("repo");
 });
 
 heightSynchronize();
+
+
+// 加载设置
+const settings = ['startup'];
+let all_settings = invoke('get_settings').then((r) => {
+    for (let i = 0; i < settings.length; i ++) {
+        let setting = settings[i];
+        if (r[setting]) {
+            document.getElementById(setting).checked = r[setting];
+        }
+    }
+});
+
+for (let i = 0; i < settings.length; i ++) {
+    document.getElementById(settings[i]).addEventListener('click', (e) => {
+        let name = e.target.id;
+        invoke("toggle_settings", {name: name}).then(() => {});
+    });
+}
