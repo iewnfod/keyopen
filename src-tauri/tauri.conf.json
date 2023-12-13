@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "keyopen",
-    "version": "1.0.2"
+    "version": "1.0.3"
   },
   "tauri": {
     "allowlist": {
@@ -21,6 +21,9 @@
         "all": true
       },
       "globalShortcut": {
+        "all": true
+      },
+      "window": {
         "all": true
       }
     },
@@ -41,12 +44,15 @@
     },
     "windows": [
       {
+        "title": "",
         "fullscreen": false,
         "resizable": true,
-        "title": "Key Open",
-        "width": 1200,
-        "height": 800,
-        "label": "main"
+        "width": 1000,
+        "height": 700,
+        "label": "main",
+        "focus": true,
+        "minWidth": 650,
+        "minHeight": 400
       }
     ]
   }
