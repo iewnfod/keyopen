@@ -83,10 +83,10 @@ fn main() {
 
     let mut app = tauri::Builder::default()
         .system_tray(SystemTray::new())
-        .on_system_tray_event(|app, event| {
+        .on_system_tray_event(|app_handle, event| {
             match event {
                 SystemTrayEvent::LeftClick { .. } => {
-                    let window = app.get_window("main").unwrap();
+                    let window = app_handle.get_window("main").unwrap();
                     window.show().unwrap();
                     window.set_focus().unwrap();
                 },
@@ -99,13 +99,13 @@ fn main() {
 
     app.set_activation_policy(ActivationPolicy::Accessory);
 
-    app.run(|app, event| {
+    app.run(|app_handle, event| {
         match event {
             RunEvent::WindowEvent { label, event, .. } => {
                 match event {
                     WindowEvent::CloseRequested { api, .. } => {
                         tauri::AppHandle::hide(
-                            &app.get_window(label.as_str())
+                            &app_handle.get_window(label.as_str())
                                 .unwrap()
                                 .app_handle()
                         ).unwrap();
