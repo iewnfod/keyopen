@@ -2,7 +2,6 @@
 
 ## Application Show
 ![show_img](./assets/show_img.png)
-![show_gif](./assets/show_gif.gif)
 
 ## Develop
 1. run [`init.sh`](./init.sh) to initialize your environment.
