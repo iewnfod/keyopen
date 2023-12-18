@@ -118,8 +118,8 @@ heightSynchronize();
 
 
 // 加载设置
-const settings = ['startup'];
-let all_settings = invoke('get_settings').then((r) => {
+const settings = ['startup', 'show_when_open'];
+invoke('get_settings').then((r) => {
     for (let i = 0; i < settings.length; i ++) {
         let setting = settings[i];
         if (r[setting]) {
