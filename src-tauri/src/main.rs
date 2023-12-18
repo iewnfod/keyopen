@@ -12,6 +12,31 @@ lazy_mut! {
     static mut BINDING: HashMap<String, String> = HashMap::new();
 }
 
+fn if_window_will_show_when_open() -> bool {
+    if unsafe { BINDING.contains_key("show_when_open") } {
+        if unsafe { *BINDING.get("show_when_open").unwrap() == "1".to_string() } {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return true;
+    }
+}
+
+fn toggle_show_window_when_open() {
+    if if_window_will_show_when_open() {
+        unsafe {
+            BINDING.insert("show_when_open".to_string(), "0".to_string());
+        }
+    } else {
+        unsafe {
+            BINDING.insert("show_when_open".to_string(), "1".to_string());
+        }
+    }
+    save_binding();
+}
+
 fn save_binding() {
     let binding = unsafe {
         BINDING.clone()
@@ -81,6 +106,7 @@ fn get_binding() -> HashMap<String, String> {
 fn get_settings() -> HashMap<String, bool> {
     let mut map = HashMap::new();
     map.insert("startup".to_string(), config::startup_exists());
+    map.insert("show_when_open".to_string(), if_window_will_show_when_open());
     map
 }
 
@@ -90,6 +116,9 @@ fn toggle_settings(name: String) {
     match name.as_str() {
         "startup" => {
             config::toggle_startup();
+        },
+        "show_when_open" => {
+            toggle_show_window_when_open();
         },
         _ => {}
     }
@@ -116,6 +145,11 @@ fn main() {
         .expect("error while running tauri application");
 
     app.set_activation_policy(ActivationPolicy::Accessory);
+
+    // 如果启动不显示窗口，就隐藏
+    if !if_window_will_show_when_open() {
+        app.get_window("main").unwrap().hide().unwrap();
+    }
 
     app.run(|app_handle, event| {
         match event {
