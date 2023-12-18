@@ -146,9 +146,9 @@ fn main() {
 
     app.set_activation_policy(ActivationPolicy::Accessory);
 
-    // 如果启动不显示窗口，就隐藏
-    if !if_window_will_show_when_open() {
-        app.get_window("main").unwrap().hide().unwrap();
+    // 如果启动显示窗口，就显示
+    if if_window_will_show_when_open() {
+        app.get_window("main").unwrap().show().unwrap();
     }
 
     app.run(|app_handle, event| {

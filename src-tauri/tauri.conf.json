@@ -52,7 +52,8 @@
         "label": "main",
         "focus": true,
         "minWidth": 650,
-        "minHeight": 400
+        "minHeight": 400,
+        "visible": false
       }
     ]
   }
