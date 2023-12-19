@@ -134,7 +134,9 @@ fn main() {
             match event {
                 SystemTrayEvent::LeftClick { .. } => {
                     let window = app_handle.get_window("main").unwrap();
-                    window.show().unwrap();
+                    tauri::AppHandle::show(
+                        &window.app_handle()
+                    ).unwrap();
                     window.set_focus().unwrap();
                 },
                 _ => {}
