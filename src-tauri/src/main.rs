@@ -15,12 +15,12 @@ lazy_mut! {
 fn if_window_will_show_when_open() -> bool {
     if unsafe { BINDING.contains_key("show_when_open") } {
         if unsafe { *BINDING.get("show_when_open").unwrap() == "1".to_string() } {
-            return true;
+            true
         } else {
-            return false;
+            false
         }
     } else {
-        return true;
+        true
     }
 }
 
