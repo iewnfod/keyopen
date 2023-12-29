@@ -110,7 +110,7 @@ function new_key(key, value) {
         <th id="${key}_th" name="${key}">
             <div class="form-group" name="${key}">
                 <button name="${key}" class="form-group-btn" id="${key}_unlock_bt">Unlock</button>
-                <input name="${key}" id="${key}_shortcut_input" disabled>
+                <input name="${key}" id="${key}_shortcut_input" style="border-top-left-radius: 0; border-bottom-left-radius: 0" disabled>
             </div>
         </th>
         <td name="${key}">
