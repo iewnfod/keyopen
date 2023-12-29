@@ -125,6 +125,8 @@ fn toggle_settings(name: String) {
 }
 
 fn main() {
+    unsafe { BINDING.init() };
+
     config::init();
     load_binding();
 
