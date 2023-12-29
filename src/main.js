@@ -56,7 +56,7 @@ function getUuid () {
     const time = Date.now()
     const random = Math.floor(Math.random() * 1000000000)
     unique++
-    return random + unique + String(time)
+    return random + unique + String(time);
 }
 
 // 读取绑定并显示
@@ -234,7 +234,7 @@ document.getElementById('remove_key').addEventListener('click', (e) => {
         clear_selected();
         selected = undefined;
     });
-})
+});
 
 // 窗口级监听
 window.addEventListener('click', (event) => {
