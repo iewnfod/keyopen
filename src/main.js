@@ -243,6 +243,7 @@ document.getElementById('remove_key').addEventListener('click', (e) => {
 });
 
 function toggle_listen(target) {
+    is_listening = target;
     // 解绑所有按键
     unregisterAll().then(() => {
         // 记录之前的滚动到的位置
@@ -264,8 +265,7 @@ function toggle_listen(target) {
 }
 
 document.getElementById('toggle_listen').addEventListener('click', (e) => {
-    is_listening = !is_listening;
-    toggle_listen(is_listening);
+    toggle_listen(!is_listening);
 });
 
 // 窗口级监听
