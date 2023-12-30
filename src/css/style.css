@@ -47,3 +47,18 @@
 .tr-selected {
     background-color: rgba(0, 0, 0, .1) !important;
 }
+
+.float-right-top {
+    position: fixed;
+    z-index: 100;
+    top: 10px;
+    right: 10px;
+}
+
+.toggle-listen {
+    cursor: pointer;
+}
+
+.invert-color {
+    filter: invert(100%);
+}

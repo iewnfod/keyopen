@@ -1,6 +1,8 @@
 import { invoke } from "./lib/api/tauri.js";
-import { register, unregister, isRegistered } from "./lib/api/globalShortcut.js";
+import {register, unregister, isRegistered, unregisterAll} from "./lib/api/globalShortcut.js";
 import { open } from "./lib/api/dialog.js";
+
+let is_listening = true;
 
 const settings = ['startup', 'show_when_open', 'repo'];
 
@@ -8,7 +10,6 @@ function openBinding(f) {
     invoke("open", {f: f}).then(() => {});
 }
 
-invoke("register", {f: "", targetPath: ""}).then(() => {});
 invoke("register", {f: "repo", targetPath: "https://github.com/iewnfod/keyopen"}).then(() => {});
 document.getElementById('to-repo').addEventListener('click', () => {
     openBinding("repo");
@@ -97,7 +98,9 @@ let bindings = {};
 
 function new_key(key, value) {
     // 绑定按键
-    bind(key);
+    if (is_listening) {
+        bind(key);
+    }
     // 创建元素
     let ele = document.createElement('tr');
     let uuid = getUuid();
@@ -185,17 +188,20 @@ function new_key(key, value) {
     return key;
 }
 
-invoke("get_binding").then((r) => {
-    let keys = Object.keys(r);
-    for (let i = 0; i < keys.length; i ++) {
-        let key = keys[i];
-        if (settings.indexOf(key) !== -1) continue;
-        if (r[key] === '') continue;
+function restore_keys() {
+    invoke("get_binding").then((r) => {
+        let keys = Object.keys(r);
+        for (let i = 0; i < keys.length; i ++) {
+            let key = keys[i];
+            if (settings.indexOf(key) !== -1) continue;
+            if (r[key] === '') continue;
 
-        new_key(key, r[key]);
-    }
-});
+            new_key(key, r[key]);
+        }
+    });
+}
 
+restore_keys();
 
 // 添加设置
 for (let i = 0; i < settings.length; i ++) {
@@ -234,6 +240,32 @@ document.getElementById('remove_key').addEventListener('click', (e) => {
         clear_selected();
         selected = undefined;
     });
+});
+
+function toggle_listen(target) {
+    // 解绑所有按键
+    unregisterAll().then(() => {
+        // 记录之前的滚动到的位置
+        let scrollX = window.scrollX;
+        let scrollY = window.scrollY;
+        // 重新渲染表格，并重新绑定
+        table_body.innerHTML = '';
+        restore_keys();
+        // 回复位置
+        window.scrollTo(scrollX, scrollY);
+        if (is_listening) {
+            document.getElementById('stopped').style.display = 'none';
+            document.getElementById('running').style.display = '';
+        } else {
+            document.getElementById('running').style.display = 'none';
+            document.getElementById('stopped').style.display = '';
+        }
+    });
+}
+
+document.getElementById('toggle_listen').addEventListener('click', (e) => {
+    is_listening = !is_listening;
+    toggle_listen(is_listening);
 });
 
 // 窗口级监听

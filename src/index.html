@@ -9,6 +9,18 @@
 	<link type="text/css" href="css/style.css" rel="stylesheet">
 </head>
 <body class="container unselect">
+	<div class="float-right-top toggle-listen" id="toggle_listen">
+		<div id="running" class="tag tag--success">
+			<img class="invert-color" src="assets/stop.png" alt="" width="16" height="16">
+			&nbsp;
+			Listening
+		</div>
+		<span id="stopped" class="tag tag--danger" style="display: none">
+			<img class="invert-color" src="assets/play.png" alt="" width="16" height="16">
+			&nbsp;
+			Paused
+		</span>
+	</div>
 	<div data-tauri-drag-region class="info" style="padding-top: 10px">
 		<h2>Key Open</h2>
 		<span>Select a file or application, and it will be opened when pressing the corresponding key.</span>
