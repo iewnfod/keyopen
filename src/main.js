@@ -242,18 +242,25 @@ document.getElementById('remove_key').addEventListener('click', (e) => {
     });
 });
 
+let scrollX = window.scrollX;
+let scrollY = window.scrollY;
+
+function restore_scroll() {
+    console.log(`Scroll to ${scrollX} - ${scrollY}`);
+    window.scrollTo(scrollX, scrollY);
+}
+
 function toggle_listen(target) {
     is_listening = target;
     // 解绑所有按键
     unregisterAll().then(() => {
         // 记录之前的滚动到的位置
-        let scrollX = window.scrollX;
-        let scrollY = window.scrollY;
+        scrollX = window.scrollX;
+        scrollY = window.scrollY;
+        console.log(`Record scroll to ${scrollX} - ${scrollY}`);
         // 重新渲染表格，并重新绑定
         table_body.innerHTML = '';
         restore_keys();
-        // 回复位置
-        window.scrollTo(scrollX, scrollY);
         if (is_listening) {
             document.getElementById('stopped').style.display = 'none';
             document.getElementById('running').style.display = '';
@@ -261,6 +268,9 @@ function toggle_listen(target) {
             document.getElementById('running').style.display = 'none';
             document.getElementById('stopped').style.display = '';
         }
+        // 滚动到原来位置
+        // 使用 setTimeout 将任务加入到渲染任务后，以保证能滚动到正确的位置
+        setTimeout(restore_scroll, 10);
     });
 }
 
