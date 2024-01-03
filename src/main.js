@@ -1,10 +1,19 @@
 import { invoke } from "./lib/api/tauri.js";
-import {register, unregister, isRegistered, unregisterAll} from "./lib/api/globalShortcut.js";
+import { register, unregister, isRegistered, unregisterAll } from "./lib/api/globalShortcut.js";
 import { open } from "./lib/api/dialog.js";
 
 let is_listening = true;
 
-const settings = ['startup', 'show_when_open', 'repo'];
+const settings = ['startup', 'show_when_open', 'repo', 'dark_mod'];
+const setting_works = {
+    'dark_mod': (value) => {
+        if (value) {
+            document.body.classList.add('dark-mod');
+        } else {
+            document.body.classList.remove('dark-mod');
+        }
+    }
+};
 
 function openBinding(f) {
     invoke("open", {f: f}).then(() => {});
@@ -209,6 +218,9 @@ for (let i = 0; i < settings.length; i ++) {
         document.getElementById(settings[i]).addEventListener('click', (e) => {
             let name = e.target.id;
             invoke("toggle_settings", {name: name}).then(() => {});
+            if (setting_works[name]) {
+                setting_works[name](e.target.checked);
+            }
         });
     }
 }
@@ -219,6 +231,9 @@ invoke('get_settings').then((r) => {
         if (r[setting]) {
             if (document.getElementById(setting)) {
                 document.getElementById(setting).checked = r[setting];
+                if (setting_works[setting]) {
+                    setting_works[setting](r[setting]);
+                }
             }
         }
     }

@@ -1,0 +1,31 @@
+.dark-mod {
+    background-color: black;
+    color: white;
+}
+
+.dark-mod .tr-selected {
+    background-color: rgba(255, 255, 255, .3) !important;
+}
+
+.dark-mod input {
+    background-color: black;
+    color: white;
+}
+
+.dark-mod input:not([class*=btn-]):disabled, select:disabled, textarea:disabled {
+    background-color: rgba(255, 255, 255, .5);
+}
+
+.dark-mod .form-group-btn {
+    background-color: black;
+    color: white;
+}
+
+.dark-mod .btn-animated {
+    background-color: black !important;
+    color: white !important;
+}
+
+.dark-mod .btn-animated:hover {
+    background-color: rgba(255, 255, 255, .3) !important;
+}

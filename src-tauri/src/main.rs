@@ -12,26 +12,22 @@ lazy_mut! {
     static mut BINDING: HashMap<String, String> = HashMap::new();
 }
 
-fn if_window_will_show_when_open() -> bool {
-    if unsafe { BINDING.contains_key("show_when_open") } {
-        if unsafe { *BINDING.get("show_when_open").unwrap() == "1".to_string() } {
-            true
-        } else {
-            false
-        }
+fn if_bool_config_true(key: &str, default: bool) -> bool {
+    if unsafe { BINDING.contains_key(key) } {
+        unsafe { *BINDING.get(key).unwrap() == "1".to_string() }
     } else {
-        true
+        default
     }
 }
 
-fn toggle_show_window_when_open() {
-    if if_window_will_show_when_open() {
+fn toggle_bool_config(key: &str, default: bool) {
+    if  { if_bool_config_true(key, default) } {
         unsafe {
-            BINDING.insert("show_when_open".to_string(), "0".to_string());
+            BINDING.insert(key.to_string(), "0".to_string());
         }
     } else {
         unsafe {
-            BINDING.insert("show_when_open".to_string(), "1".to_string());
+            BINDING.insert(key.to_string(), "1".to_string());
         }
     }
     save_binding();
@@ -105,7 +101,8 @@ fn get_binding() -> HashMap<String, String> {
 fn get_settings() -> HashMap<String, bool> {
     let mut map = HashMap::new();
     map.insert("startup".to_string(), config::startup_exists());
-    map.insert("show_when_open".to_string(), if_window_will_show_when_open());
+    map.insert("show_when_open".to_string(), if_bool_config_true("show_when_open", true));
+    map.insert("dark_mod".to_string(), if_bool_config_true("dark_mod", false));
     map
 }
 
@@ -117,7 +114,10 @@ fn toggle_settings(name: String) {
             config::toggle_startup();
         },
         "show_when_open" => {
-            toggle_show_window_when_open();
+            toggle_bool_config("show_when_open", true);
+        },
+        "dark_mod" => {
+            toggle_bool_config("dark_mod", false);
         },
         _ => {}
     }
@@ -150,7 +150,7 @@ fn main() {
     app.set_activation_policy(ActivationPolicy::Accessory);
 
     // 如果启动显示窗口，就显示
-    if if_window_will_show_when_open() {
+    if if_bool_config_true("show_when_open", true) {
         app.get_window("main").unwrap().show().unwrap();
     }
 

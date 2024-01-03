@@ -7,19 +7,22 @@
 	<script src="main.js" type="module" defer></script>
 	<link type="text/css" href="css/cirrus.min.css" rel="stylesheet">
 	<link type="text/css" href="css/style.css" rel="stylesheet">
+	<link type="text/css" href="css/dark.css" rel="stylesheet">
 </head>
 <body class="container unselect">
-	<div class="float-right-top toggle-listen" id="toggle_listen">
-		<div id="running" class="tag tag--success">
-			<img class="invert-color" src="assets/stop.png" alt="" width="16" height="16">
-			&nbsp;
-			Listening
+	<div class="float-right-top">
+		<div class="toggle-listen" id="toggle_listen">
+			<div id="running" class="tag tag--success">
+				<img class="invert-color" src="assets/stop.png" alt="" width="16" height="16">
+				&nbsp;
+				Listening
+			</div>
+			<div id="stopped" class="tag tag--danger" style="display: none">
+				<img class="invert-color" src="assets/play.png" alt="" width="16" height="16">
+				&nbsp;
+				Paused
+			</div>
 		</div>
-		<span id="stopped" class="tag tag--danger" style="display: none">
-			<img class="invert-color" src="assets/play.png" alt="" width="16" height="16">
-			&nbsp;
-			Paused
-		</span>
 	</div>
 	<div data-tauri-drag-region class="info" style="padding-top: 10px">
 		<h2>Key Open</h2>
@@ -48,6 +51,10 @@
 		<div>
 			<input type="checkbox" id="show_when_open" class="checkbox">
 			<label for="show_when_open">Show Window when Open</label>
+		</div>
+		<div>
+			<input type="checkbox" id="dark_mod" class="checkbox">
+			<label for="dark_mod">Dark Mod</label>
 		</div>
 	</div>
 	<div class="info">

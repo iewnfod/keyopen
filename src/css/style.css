@@ -62,3 +62,8 @@
 .invert-color {
     filter: invert(100%);
 }
+
+body {
+    background-color: white;
+    color: black;
+}
