@@ -21,7 +21,7 @@ fn if_bool_config_true(key: &str, default: bool) -> bool {
 }
 
 fn toggle_bool_config(key: &str, default: bool) {
-    if  { if_bool_config_true(key, default) } {
+    if if_bool_config_true(key, default) {
         unsafe {
             BINDING.insert(key.to_string(), "0".to_string());
         }
