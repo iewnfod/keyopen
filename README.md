@@ -15,6 +15,6 @@ If you want to achieve the goal that when you are pressing `option` and `a`, the
 ![example](./assets/opt_a_example.png)
 
 ## Develop
-1. run [`init.sh`](./init.sh) to initialize your environment.
-2. run [`dev.sh`](./dev.sh) to run this application in a debug mod.
-3. run [`build.sh`](./build.sh) to build a release.
+1. run [`init.sh`](scripts/init.sh) to initialize your environment.
+2. run [`dev.sh`](scripts/dev.sh) to run this application in a debug mod.
+3. run [`build.sh`](scripts/build.sh) to build a release.
