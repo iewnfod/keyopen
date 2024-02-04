@@ -1,0 +1,14 @@
+{
+  "tauri": {
+    "systemTray": {
+      "iconPath": "icons/icon_black.png"
+    },
+    "bundle": {
+      "targets": "all",
+      "identifier": "com.iewnfod.keyopen",
+      "icon": [
+        "icons/icon.icns"
+      ]
+    }
+  }
+}

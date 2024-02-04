@@ -4,7 +4,7 @@
 use std::{collections::HashMap, process::Command, path::Path, fs::{File, self}};
 
 use lazy_mut::lazy_mut;
-use tauri::{SystemTray, SystemTrayEvent, Manager, RunEvent, WindowEvent};
+use tauri::{SystemTray, SystemTrayEvent, Manager, RunEvent, WindowEvent, SystemTrayMenu, SystemTrayMenuItem, CustomMenuItem};
 
 mod config;
 
@@ -146,25 +146,38 @@ fn main() {
     config::init();
     load_binding();
 
-    let tray = SystemTray::new();
+    let tray_menu = SystemTrayMenu::new()
+        .add_item(CustomMenuItem::new("show".to_string(), "Show Window"))
+        .add_item(CustomMenuItem::new("quit".to_string(), "Quit"));
+
+    let tray = SystemTray::new()
+        .with_menu(tray_menu);
 
     let mut app = tauri::Builder::default()
-        .system_tray(SystemTray::new())
+        .system_tray(tray)
         .on_system_tray_event(|app_handle, event| {
             match event {
-                SystemTrayEvent::LeftClick { .. } => {
-                    println!("Show Request");
-                    let window = app_handle.get_window("main").unwrap();
+                SystemTrayEvent::MenuItemClick { id, .. } => {
+                    match id.as_str() {
+                        "quit" => {
+                            std::process::exit(0);
+                        },
+                        "show" => {
+                            println!("Show Request");
+                            let window = app_handle.get_window("main").unwrap();
 
-                    #[cfg(target_os = "macos")]
-                    tauri::AppHandle::show(
-                        &window.app_handle()
-                    ).unwrap();
+                            #[cfg(target_os = "macos")]
+                            tauri::AppHandle::show(
+                                &window.app_handle()
+                            ).unwrap();
 
-                    #[cfg(target_os = "linux")]
-                    window.show().unwrap();
+                            #[cfg(target_os = "linux")]
+                            window.show().unwrap();
 
-                    window.set_focus().unwrap();
+                            window.set_focus().unwrap();
+                        },
+                        _ => {}
+                    }
                 },
                 _ => {}
             }
