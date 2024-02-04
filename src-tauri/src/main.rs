@@ -146,16 +146,24 @@ fn main() {
     config::init();
     load_binding();
 
+    let tray = SystemTray::new();
+
     let mut app = tauri::Builder::default()
         .system_tray(SystemTray::new())
         .on_system_tray_event(|app_handle, event| {
             match event {
                 SystemTrayEvent::LeftClick { .. } => {
+                    println!("Show Request");
                     let window = app_handle.get_window("main").unwrap();
+
                     #[cfg(target_os = "macos")]
                     tauri::AppHandle::show(
                         &window.app_handle()
                     ).unwrap();
+
+                    #[cfg(target_os = "linux")]
+                    window.show().unwrap();
+
                     window.set_focus().unwrap();
                 },
                 _ => {}
@@ -185,15 +193,19 @@ fn main() {
             RunEvent::WindowEvent { label, event, .. } => {
                 match event {
                     WindowEvent::CloseRequested { api, .. } => {
+                        println!("Hide Request");
+
                         #[cfg(target_os = "macos")]
-                        {
-                            tauri::AppHandle::hide(
-                                &app_handle.get_window(label.as_str())
-                                    .unwrap()
-                                    .app_handle()
-                            ).unwrap();
-                            api.prevent_close();
-                        }
+                        tauri::AppHandle::hide(
+                            &app_handle.get_window(label.as_str())
+                            .unwrap().app_handle()
+                        ).unwrap();
+
+                        #[cfg(target_os = "linux")]
+                        app_handle.get_window(label.as_str())
+                            .unwrap().hide().unwrap();
+
+                        api.prevent_close();
                     },
                     _ => {}
                 }
