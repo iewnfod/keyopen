@@ -25,3 +25,4 @@ dist-ssr
 src/lib/*
 
 package-lock.json
+Cargo.lock
