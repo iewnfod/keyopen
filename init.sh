@@ -1,3 +1,5 @@
+#!/bin/sh
+
 cd src
 npm i
 cp -r node_modules/@tauri-apps/ lib/
