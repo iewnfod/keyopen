@@ -4,7 +4,7 @@
 use std::{collections::HashMap, process::Command, path::Path, fs::{File, self}};
 
 use lazy_mut::lazy_mut;
-use tauri::{SystemTray, SystemTrayEvent, Manager, RunEvent, WindowEvent, SystemTrayMenu, SystemTrayMenuItem, CustomMenuItem};
+use tauri::{SystemTray, SystemTrayEvent, Manager, RunEvent, WindowEvent, SystemTrayMenu, CustomMenuItem};
 
 mod config;
 
