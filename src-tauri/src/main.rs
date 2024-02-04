@@ -4,9 +4,16 @@
 use std::{collections::HashMap, process::Command, path::Path, fs::{File, self}};
 
 use lazy_mut::lazy_mut;
-use tauri::{SystemTray, SystemTrayEvent, Manager, RunEvent, WindowEvent, ActivationPolicy};
+use tauri::{SystemTray, SystemTrayEvent, Manager, RunEvent, WindowEvent};
 
 mod config;
+
+#[cfg(target_os = "linux")]
+const OPEN: &str = "xdg-open";
+#[cfg(target_os = "windows")]
+const OPEN: &str = "explorer";
+#[cfg(target_os = "macos")]
+const OPEN: &str = "open";
 
 lazy_mut! {
     static mut BINDING: HashMap<String, String> = HashMap::new();
@@ -81,7 +88,7 @@ fn open(f : String) {
 
         println!("Open Key Binding {} -> {}", &f, &target_path);
 
-        let mut command = Command::new("open");
+        let mut command = Command::new(OPEN);
         command.arg(target_path);
 
         command.spawn().unwrap();
@@ -135,6 +142,7 @@ fn main() {
             match event {
                 SystemTrayEvent::LeftClick { .. } => {
                     let window = app_handle.get_window("main").unwrap();
+                    #[cfg(target_os = "macos")]
                     tauri::AppHandle::show(
                         &window.app_handle()
                     ).unwrap();
@@ -147,7 +155,8 @@ fn main() {
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
 
-    app.set_activation_policy(ActivationPolicy::Accessory);
+    #[cfg(target_os = "macos")]
+    app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
     // 如果启动显示窗口，就显示
     if if_bool_config_true("show_when_open", true) {
@@ -159,12 +168,15 @@ fn main() {
             RunEvent::WindowEvent { label, event, .. } => {
                 match event {
                     WindowEvent::CloseRequested { api, .. } => {
-                        tauri::AppHandle::hide(
-                            &app_handle.get_window(label.as_str())
-                                .unwrap()
-                                .app_handle()
-                        ).unwrap();
-                        api.prevent_close();
+                        #[cfg(target_os = "macos")]
+                        {
+                            tauri::AppHandle::hide(
+                                &app_handle.get_window(label.as_str())
+                                    .unwrap()
+                                    .app_handle()
+                            ).unwrap();
+                            api.prevent_close();
+                        }
                     },
                     _ => {}
                 }

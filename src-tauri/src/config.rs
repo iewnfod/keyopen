@@ -18,7 +18,13 @@ pub fn get_config_path() -> String {
 
 fn get_user_home() -> PathBuf {
 	let user = users::get_user_by_uid(users::get_current_uid()).unwrap();
-	Path::new("/Users").join(user.name())
+	if cfg!(target_os = "macos") {
+		Path::new("/Users").join(user.name())
+	} else if cfg!(target_os = "linux") {
+		Path::new("/home").join(user.name())
+	} else {
+		Path::new(user.name()).to_path_buf()
+	}
 }
 
 fn get_startup_plist_path() -> PathBuf {
@@ -60,9 +66,13 @@ fn set_startup() {
 	fs::write(&plist_path, &string_value).unwrap();
 }
 
-pub fn init() {
+fn generate_config_path() {
 	let home = get_user_home();
-	let config_path = home.join("Library").join("Application Support").join(APP_ID);
+	let mut config_path = home.join(".config").join(APP_ID);
+	if cfg!(target_os = "macos") {
+		config_path = home.join("Library").join("Application Support").join(APP_ID);
+	}
+
 	if !config_path.exists() {
 		create_dir_all(&config_path).unwrap();
 	}
@@ -73,7 +83,11 @@ pub fn init() {
 	println!("{}", string_path);
 	unsafe {
 		CONFIG_PATH = Some(string_path.to_string());
-	};
+	}
+}
+
+pub fn init() {
+	generate_config_path();
 }
 
 pub fn startup_exists() -> bool {
