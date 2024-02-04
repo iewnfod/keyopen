@@ -66,6 +66,16 @@ fn load_binding() {
 }
 
 #[tauri::command]
+fn get_system() -> String {
+    #[cfg(target_os = "windows")]
+    return "windows".to_string();
+    #[cfg(target_os = "macos")]
+    return "macos".to_string();
+    #[cfg(target_os = "linux")]
+    return "linux".to_string();
+}
+
+#[tauri::command]
 fn register(f : String, target_path : String) {
     println!("New Register {} -> {}", &f, &target_path);
     unsafe {
@@ -151,7 +161,14 @@ fn main() {
                 _ => {}
             }
         })
-        .invoke_handler(tauri::generate_handler![register, open, get_binding, get_settings, toggle_settings])
+        .invoke_handler(tauri::generate_handler![
+            register,
+            open,
+            get_binding,
+            get_settings,
+            toggle_settings,
+            get_system,
+        ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
 
