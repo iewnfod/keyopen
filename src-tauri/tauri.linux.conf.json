@@ -5,10 +5,9 @@
     },
     "bundle": {
       "targets": ["deb", "appimage"],
-      "identifier": "com.iewnfod.keyopen",
-      "icon": [
-        "icons/icon.icns"
-      ]
+      "deb": {
+        "desktopTemplate": "./templates/keyopen.desktop"
+      }
     }
   }
 }

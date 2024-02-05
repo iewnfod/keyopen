@@ -27,6 +27,14 @@
         "all": true
       }
     },
+    "bundle": {
+      "active": true,
+      "identifier": "com.iewnfod.keyopen",
+      "icon": [
+        "icons/icon.icns",
+        "icons/icon_black.png"
+      ]
+    },
     "security": {
       "csp": null
     },

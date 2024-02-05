@@ -5,12 +5,7 @@
       "iconAsTemplate": true
     },
     "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.iewnfod.keyopen",
-      "icon": [
-        "icons/icon.icns"
-      ]
+      "targets": "all"
     }
   }
 }
