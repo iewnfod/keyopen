@@ -4,7 +4,7 @@
       "iconPath": "icons/icon_black.png"
     },
     "bundle": {
-      "targets": ["deb", "appimage"],
+      "targets": "all",
       "deb": {
         "desktopTemplate": "./templates/keyopen.desktop"
       }
