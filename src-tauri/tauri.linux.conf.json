@@ -4,7 +4,7 @@
       "iconPath": "icons/icon_black.png"
     },
     "bundle": {
-      "targets": "all",
+      "targets": ["deb", "appimage"],
       "identifier": "com.iewnfod.keyopen",
       "icon": [
         "icons/icon.icns"
