@@ -3,7 +3,7 @@
 
 use std::{collections::HashMap, process::Command, path::Path, fs::{File, self}};
 
-use lazy_mut::lazy_mut;
+use lazy_mut::{lazy_mut, LazyMut};
 use tauri::{SystemTray, SystemTrayEvent, Manager, RunEvent, WindowEvent, SystemTrayMenu, CustomMenuItem};
 
 mod config;
@@ -109,9 +109,32 @@ fn open(f : String) {
 
 #[tauri::command]
 fn get_binding() -> HashMap<String, String> {
-    unsafe {
-        BINDING.clone().unwrap()
+    let mut binding = unsafe {
+        BINDING.clone()
+    }.unwrap();
+
+    let mut remove_keys = vec![];
+    for (key, value) in binding.iter() {
+        if value.is_empty() {
+            remove_keys.push(key.clone());
+        }
     }
+
+    if !remove_keys.is_empty() {
+        // 删除
+        for key in remove_keys.iter_mut() {
+            binding.remove(key);
+        }
+        // 保存
+        unsafe {
+            BINDING = LazyMut::Value(binding.clone());
+        }
+        save_binding();
+
+        println!("Clean Up Binding: {:?}", &binding);
+    }
+
+    binding
 }
 
 #[tauri::command]
