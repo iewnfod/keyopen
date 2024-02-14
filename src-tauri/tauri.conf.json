@@ -49,7 +49,8 @@
         "focus": true,
         "minWidth": 650,
         "minHeight": 400,
-        "visible": false
+        "visible": false,
+        "titleBarStyle": "Overlay"
       }
     ]
   }
