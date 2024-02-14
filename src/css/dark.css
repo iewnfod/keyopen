@@ -1,31 +1,39 @@
 .dark-mod {
-    background-color: black;
-    color: white;
+    --bg-color: color-mix(in srgb, Canvas, CanvasText 2.5%);
+    --hover-bg-color: rgba(255, 255, 255, .1);
+    --color: color-mix(in srgb, CanvasText, Canvas 15%);
+    background-color: var(--bg-color);
+    color: var(--color);
+    color-scheme: dark;
 }
 
 .dark-mod .tr-selected {
-    background-color: rgba(255, 255, 255, .3) !important;
+    background-color: var(--hover-bg-color) !important;
 }
 
 .dark-mod input {
-    background-color: black;
-    color: white;
+    background-color: var(--bg-color);
+    color: var(--color);
 }
 
 .dark-mod input:not([class*=btn-]):disabled, select:disabled, textarea:disabled {
-    background-color: rgba(255, 255, 255, .5);
+    background-color: var(--hover-bg-color);
 }
 
 .dark-mod .form-group-btn {
-    background-color: black;
-    color: white;
+    background-color: var(--bg-color);
+    color: var(--color);
 }
 
 .dark-mod .btn-animated {
-    background-color: black !important;
-    color: white !important;
+    background-color: var(--bg-color) !important;
+    color: var(--color) !important;
 }
 
 .dark-mod .btn-animated:hover {
-    background-color: rgba(255, 255, 255, .3) !important;
+    background-color: var(--hover-bg-color) !important;
+}
+
+.dark-mod .tr-selected {
+    background-color: color-mix(in srgb, var(--hover-bg-color), white 15%) !important;
 }
