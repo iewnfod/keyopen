@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{collections::HashMap, process::Command, path::Path, fs::{File, self}};
+use std::{collections::HashMap, fs::{self, File}, path::Path, process::Command};
 
 use lazy_mut::{lazy_mut, LazyMut};
 use tauri::{SystemTray, SystemTrayEvent, Manager, RunEvent, WindowEvent, SystemTrayMenu, CustomMenuItem};
@@ -101,7 +101,15 @@ fn open(f : String) {
         let mut command = Command::new(OPEN);
         command.arg(target_path);
 
-        command.spawn().unwrap();
+        let result = command.output().unwrap();
+
+        // 如果没有成功，就尝试直接运行这个东西
+        if !result.status.success() {
+            println!("Open Key Binding {} -> {} Failed", &f, &target_path);
+            println!("Try to run directly");
+            let mut target_command = Command::new(target_path);
+            let _ = target_command.spawn();
+        }
     } else {
         println!("Key Binding {} not found", &f);
     }
