@@ -1,8 +1,7 @@
-use std::{path::Path, fs::create_dir_all, fs};
+use std::{path::Path, fs::create_dir_all};
 use std::env::current_exe;
-use std::fs::File;
 use std::path::PathBuf;
-use plist::Value;
+use auto_launch::AutoLaunch;
 
 const APP_ID: &str = "com.iewnfod.keyopen";
 const CONFIG_NAME: &str = "keyopen_config.json";
@@ -27,43 +26,28 @@ fn get_user_home() -> PathBuf {
 	}
 }
 
-fn get_startup_plist_path() -> PathBuf {
-	let home = get_user_home();
-	home.join("Library")
-		.join("LaunchAgents")
-		.join(APP_ID.to_owned() + ".plist")
-}
-
-fn set_startup() {
-	let plist_path = get_startup_plist_path();
-
+fn get_auto_launcher() -> AutoLaunch {
 	let mut exe_path = current_exe().unwrap();
 	while exe_path.is_symlink() {
 		exe_path = exe_path.read_link().unwrap();
 	}
 
-	let mut p_dict = plist::Dictionary::new();
-	p_dict.insert("Label".to_string(), Value::from(APP_ID));
-	p_dict.insert(
-		"ProgramArguments".to_string(),
-		Value::from(vec![
-			Value::from(exe_path.to_str().unwrap().to_string().as_str())
-		])
-	);
-	p_dict.insert("RunAtLoad".to_string(), Value::from(true));
-	p_dict.insert("StandardOutPath".to_string(), Value::from("/dev/null"));
-	p_dict.insert("StandardErrorPath".to_string(), Value::from("/dev/null"));
-	let p_value = Value::from(p_dict);
+	let args = [""];
 
-	let mut xml_byte_buffer: Vec<u8> = vec![];
-	p_value.to_writer_xml(&mut xml_byte_buffer).unwrap();
+	AutoLaunch::new(
+		"KeyOpen",
+		exe_path.as_mut_os_str().to_os_string().to_str().unwrap(),
+		false,
+		&args,
+	)
+}
 
-	let string_value = String::from_utf8(xml_byte_buffer).unwrap();
+fn set_startup() {
+	get_auto_launcher().enable().unwrap();
+}
 
-	if !plist_path.exists() {
-		File::create(&plist_path).unwrap();
-	}
-	fs::write(&plist_path, &string_value).unwrap();
+fn remove_startup() {
+	get_auto_launcher().disable().unwrap();
 }
 
 fn generate_config_path() {
@@ -91,12 +75,12 @@ pub fn init() {
 }
 
 pub fn startup_exists() -> bool {
-	get_startup_plist_path().exists()
+	get_auto_launcher().is_enabled().unwrap()
 }
 
 pub fn toggle_startup() {
 	if startup_exists() {
-		fs::remove_file(get_startup_plist_path()).unwrap();
+		remove_startup();
 	} else {
 		set_startup();
 	}
