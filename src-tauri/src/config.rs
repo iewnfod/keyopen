@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use auto_launch::AutoLaunch;
 
 const APP_ID: &str = "com.iewnfod.keyopen";
+const APP_NAME: &str = "KeyOpen";
 const CONFIG_NAME: &str = "keyopen_config.json";
 
 static mut CONFIG_PATH: Option<String> = None;
@@ -32,14 +33,26 @@ fn get_auto_launcher() -> AutoLaunch {
 		exe_path = exe_path.read_link().unwrap();
 	}
 
+	let os_str_exe_path = exe_path.as_mut_os_str();
+	let str_exe_path = os_str_exe_path.to_str().unwrap();
 	let args = [""];
 
-	AutoLaunch::new(
-		"KeyOpen",
-		exe_path.as_mut_os_str().to_os_string().to_str().unwrap(),
+	#[cfg(target_os = "linux")]
+	let launcher = AutoLaunch::new(
+		APP_NAME,
+		str_exe_path,
+		&args,
+	);
+
+	#[cfg(target_os = "macos")]
+	let launcher = AutoLaunch::new(
+		APP_NAME,
+		str_exe_path,
 		false,
 		&args,
-	)
+	);
+
+	launcher
 }
 
 fn set_startup() {
