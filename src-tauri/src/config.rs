@@ -10,12 +10,6 @@ const CONFIG_NAME: &str = "keyopen_config.json";
 static mut CONFIG_PATH: Option<String> = None;
 
 
-pub fn get_config_path() -> String {
-	unsafe {
-		CONFIG_PATH.clone().unwrap().to_string()
-	}
-}
-
 fn get_user_home() -> PathBuf {
 	let user = users::get_user_by_uid(users::get_current_uid()).unwrap();
 	if cfg!(target_os = "macos") {
@@ -55,12 +49,12 @@ fn get_auto_launcher() -> AutoLaunch {
 	launcher
 }
 
-fn set_startup() {
-	get_auto_launcher().enable().unwrap();
+fn set_startup() -> bool {
+	get_auto_launcher().enable().is_ok()
 }
 
-fn remove_startup() {
-	get_auto_launcher().disable().unwrap();
+fn remove_startup() -> bool {
+	get_auto_launcher().disable().is_ok()
 }
 
 fn generate_config_path() {
@@ -83,6 +77,7 @@ fn generate_config_path() {
 	}
 }
 
+// public functions
 pub fn init() {
 	generate_config_path();
 }
@@ -91,10 +86,16 @@ pub fn startup_exists() -> bool {
 	get_auto_launcher().is_enabled().unwrap()
 }
 
-pub fn toggle_startup() {
+pub fn toggle_startup() -> bool {
 	if startup_exists() {
-		remove_startup();
+		remove_startup()
 	} else {
-		set_startup();
+		set_startup()
+	}
+}
+
+pub fn get_config_path() -> String {
+	unsafe {
+		CONFIG_PATH.clone().unwrap().to_string()
 	}
 }

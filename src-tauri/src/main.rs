@@ -155,19 +155,21 @@ fn get_settings() -> HashMap<String, bool> {
 }
 
 #[tauri::command]
-fn toggle_settings(name: String) {
+fn toggle_settings(name: String) -> bool {
     println!("Toggle setting {}", name);
     match name.as_str() {
         "startup" => {
-            config::toggle_startup();
+            config::toggle_startup()
         },
         "show_when_open" => {
             toggle_bool_config("show_when_open", true);
+            true
         },
         "dark_mod" => {
             toggle_bool_config("dark_mod", false);
+            true
         },
-        _ => {}
+        _ => { true }
     }
 }
 

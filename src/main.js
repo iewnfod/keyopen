@@ -213,14 +213,25 @@ function restore_keys() {
 restore_keys();
 
 // 添加设置
+function toggle_setting_work(name, status) {
+    if (setting_works[name]) {
+        setting_works[name](status)
+    }
+}
+
 for (let i = 0; i < settings.length; i ++) {
     if (document.getElementById(settings[i])) {
         document.getElementById(settings[i]).addEventListener('click', (e) => {
             let name = e.target.id;
-            invoke("toggle_settings", {name: name}).then(() => {});
-            if (setting_works[name]) {
-                setting_works[name](e.target.checked);
-            }
+            let original_status = e.target.checked;
+            invoke("toggle_settings", {name: name}).then((r) => {
+                console.log(r);
+                if (r === false) {
+                    e.target.checked = original_status;
+                    toggle_setting_work(name, original_status);
+                }
+            });
+            toggle_setting_work(name, e.target.checked);
         });
     }
 }
