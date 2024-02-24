@@ -63,7 +63,12 @@
     filter: invert(100%);
 }
 
+.table-head {
+    color: black;
+}
+
 body {
+    transition: all ease-in-out .3s;
     background-color: white;
     color: black;
 }

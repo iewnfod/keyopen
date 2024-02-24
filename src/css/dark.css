@@ -37,3 +37,7 @@
 .dark-mod .tr-selected {
     background-color: color-mix(in srgb, var(--hover-bg-color), white 15%) !important;
 }
+
+.dark-mod .table-head {
+    color: var(--color);
+}
