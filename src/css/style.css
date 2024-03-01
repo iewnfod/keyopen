@@ -64,11 +64,11 @@
 }
 
 .table-head {
-    color: black;
+    color: rgb(0, 0, 0);
 }
 
 body {
     transition: all ease-in-out .3s;
-    background-color: white;
-    color: black;
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
 }
