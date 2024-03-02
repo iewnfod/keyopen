@@ -136,8 +136,8 @@ fn main() {
     load_binding();
 
     let tray_menu = SystemTrayMenu::new()
-        .add_item(CustomMenuItem::new("show".to_string(), "Show Window"))
-        .add_item(CustomMenuItem::new("quit".to_string(), "Quit"));
+        .add_item(CustomMenuItem::new("show".to_string(), "Show Window").accelerator("Command+S"))
+        .add_item(CustomMenuItem::new("quit".to_string(), "Quit").accelerator("Command+Q"));
 
     let tray = SystemTray::new()
         .with_menu(tray_menu);
