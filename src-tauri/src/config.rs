@@ -1,13 +1,17 @@
+use std::sync::Mutex;
 use std::{path::Path, fs::create_dir_all};
 use std::env::current_exe;
 use std::path::PathBuf;
 use auto_launch::AutoLaunch;
+use lazy_static::lazy_static;
 
 const APP_ID: &str = "com.iewnfod.keyopen";
 const APP_NAME: &str = "KeyOpen";
 const CONFIG_NAME: &str = "keyopen_config.json";
 
-static mut CONFIG_PATH: Option<String> = None;
+lazy_static! {
+	static ref CONFIG_PATH: Mutex<String> = Mutex::new(String::new());
+}
 
 
 fn get_user_home() -> PathBuf {
@@ -71,10 +75,8 @@ fn generate_config_path() {
 	let config_file = config_path.join(CONFIG_NAME);
 	let string_path = config_file.as_os_str().to_str().unwrap();
 
-	println!("{}", string_path);
-	unsafe {
-		CONFIG_PATH = Some(string_path.to_string());
-	}
+	println!("{}", &string_path);
+	set_config_path(&string_path);
 }
 
 // public functions
@@ -95,7 +97,12 @@ pub fn toggle_startup() -> bool {
 }
 
 pub fn get_config_path() -> String {
-	unsafe {
-		CONFIG_PATH.clone().unwrap().to_string()
-	}
+	let config_path = CONFIG_PATH.lock().unwrap();
+	config_path.to_string()
+}
+
+pub fn set_config_path<T>(s: T)
+where T: ToString {
+	let mut config_path = CONFIG_PATH.lock().unwrap();
+	*config_path = s.to_string();
 }
