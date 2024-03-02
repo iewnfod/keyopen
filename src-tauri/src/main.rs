@@ -1,12 +1,13 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{collections::HashMap, fs::{self, File}, path::Path, process::Command};
+use std::{collections::HashMap, process::Command};
 
-use lazy_mut::{lazy_mut, LazyMut};
+use binding::*;
 use tauri::{SystemTray, SystemTrayEvent, Manager, RunEvent, WindowEvent, SystemTrayMenu, CustomMenuItem};
 
 mod config;
+mod binding;
 
 #[cfg(target_os = "linux")]
 const OPEN: &str = "xdg-open";
@@ -15,13 +16,9 @@ const OPEN: &str = "explorer";
 #[cfg(target_os = "macos")]
 const OPEN: &str = "open";
 
-lazy_mut! {
-    static mut BINDING: HashMap<String, String> = HashMap::new();
-}
-
 fn if_bool_config_true(key: &str, default: bool) -> bool {
-    if unsafe { BINDING.contains_key(key) } {
-        unsafe { *BINDING.get(key).unwrap() == "1".to_string() }
+    if let Some(k) = get_binding_from_key(key) {
+        k == "1".to_string()
     } else {
         default
     }
@@ -29,40 +26,11 @@ fn if_bool_config_true(key: &str, default: bool) -> bool {
 
 fn toggle_bool_config(key: &str, default: bool) {
     if if_bool_config_true(key, default) {
-        unsafe {
-            BINDING.insert(key.to_string(), "0".to_string());
-        }
+        set_binding_from_key(key, 0);
     } else {
-        unsafe {
-            BINDING.insert(key.to_string(), "1".to_string());
-        }
+        set_binding_from_key(key, 1);
     }
     save_binding();
-}
-
-fn save_binding() {
-    let binding = unsafe {
-        BINDING.clone()
-    }.unwrap();
-    let config_string = serde_json::to_string(&binding).unwrap();
-    println!("{}", config_string);
-    if !Path::new(config::get_config_path().as_str()).exists() {
-        File::create(config::get_config_path().as_str()).unwrap();
-    }
-    fs::write(Path::new(config::get_config_path().as_str()), config_string).unwrap();
-}
-
-fn load_binding() {
-    if Path::new(config::get_config_path().as_str()).exists() {
-        let binding = String::from_utf8(
-            fs::read(Path::new(config::get_config_path().as_str())).unwrap()
-        ).unwrap();
-        let binding_map: HashMap<String, String> = serde_json::from_str(&binding).unwrap();
-        println!("{:?}", binding_map);
-        unsafe {
-            BINDING = lazy_mut::LazyMut::Value(binding_map);
-        };
-    }
 }
 
 #[tauri::command]
@@ -78,19 +46,13 @@ fn get_system() -> String {
 #[tauri::command]
 fn register(f : String, target_path : String) {
     println!("New Register {} -> {}", &f, &target_path);
-    unsafe {
-        BINDING.insert(f, target_path);
-    };
+    set_binding_from_key(f, target_path);
     save_binding();
 }
 
 #[tauri::command]
 fn open(f : String) {
-    if unsafe { BINDING.contains_key(&f) } {
-        let target_path = unsafe {
-            BINDING.get(&f)
-        }.unwrap();
-
+    if let Some(target_path) = get_binding_from_key(&f) {
         if target_path.is_empty() {
             println!("Empty Binding {}", &f);
             return;
@@ -99,7 +61,7 @@ fn open(f : String) {
         println!("Open Key Binding {} -> {}", &f, &target_path);
 
         let mut command = Command::new(OPEN);
-        command.arg(target_path);
+        command.arg(&target_path);
 
         let result = command.output().unwrap();
 
@@ -117,9 +79,7 @@ fn open(f : String) {
 
 #[tauri::command]
 fn get_binding() -> HashMap<String, String> {
-    let mut binding = unsafe {
-        BINDING.clone()
-    }.unwrap();
+    let mut binding = get_whole_binding();
 
     let mut remove_keys = vec![];
     for (key, value) in binding.iter() {
@@ -134,9 +94,7 @@ fn get_binding() -> HashMap<String, String> {
             binding.remove(key);
         }
         // 保存
-        unsafe {
-            BINDING = LazyMut::Value(binding.clone());
-        }
+        set_whole_binding(binding.clone());
         save_binding();
 
         println!("Clean Up Binding: {:?}", &binding);
@@ -174,8 +132,6 @@ fn toggle_settings(name: String) -> bool {
 }
 
 fn main() {
-    unsafe { BINDING.init() };
-
     config::init();
     load_binding();
 
