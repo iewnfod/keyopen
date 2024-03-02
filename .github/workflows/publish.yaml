@@ -3,10 +3,7 @@ name: Release CI
 
 # 指定此工作流的触发器
 on:
-  push:
-    # 匹配特定标签 (refs/tags)
-    tags:
-      - 'v*' # 推送事件匹配 v*, 例如 v1.0，v20.15.10 等来触发工作流
+  workflow_dispatch
 
 # 需要运行的作业组合
 jobs:
