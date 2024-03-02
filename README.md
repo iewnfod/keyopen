@@ -1,8 +1,13 @@
-# Key Open
+<p align="center">
+<a href="./src-tauri/icons/icon.svg">
+<img src="./src-tauri/icons/icon.svg" width="100" height="100" alt="icon">
+</a>
+<h1 align="center">Key Open</h1>
+<p align="center">A tool to open file or application quickly on mac and linux.</p>
+</p>
 
-***Warning***
-
-Keyopen might make the same shortcut set by other applications lose their effectiveness.
+> ***Warning***
+> Keyopen might make the same shortcut set by other applications lose their effectiveness.
 
 ## Application Show
 ![show_img](./assets/show_img.png)
