@@ -37,9 +37,10 @@ jobs:
   # 编译 Tauri
   build-tauri:
     needs: create-release
+    runs-on: ${{ matrix.config.os }}
+
     strategy:
       fail-fast: false
-      runs-on: ${{ matrix.config.os }}
       matrix:
         config:
           - os: ubuntu-20.04
