@@ -42,6 +42,10 @@ jobs:
       - name: Install Rust Stable
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Add Rust Target
+        run:
+          rustup target add ${{ matrix.config.rust_target }}
+
       - name: Install Dependencies (ubuntu only)
         if: matrix.config.os == 'ubuntu-20.04'
         run: |
@@ -60,7 +64,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
+          tagName: v__VERSION__
           releaseName: "v__VERSION__"
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true
