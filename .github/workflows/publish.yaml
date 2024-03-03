@@ -39,11 +39,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Rust Stable
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.config.rust_target }}
-
       - name: Install Dependencies (ubuntu only)
         if: matrix.config.os == 'ubuntu-20.04'
         run: |
@@ -57,6 +52,11 @@ jobs:
           cp -r node_modules/@tauri-apps/ lib/
           rm -rf node_modules
           cd ..
+
+      - name: Install Rust Stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.config.rust_target }}
 
       - uses: tauri-apps/tauri-action@v0
         env:
