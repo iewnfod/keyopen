@@ -41,10 +41,8 @@ jobs:
 
       - name: Install Rust Stable
         uses: dtolnay/rust-toolchain@stable
-
-      - name: Add Rust Target
-        run:
-          rustup target add ${{ matrix.config.rust_target }}
+        with:
+          targets: ${{ matrix.config.rust_target }}
 
       - name: Install Dependencies (ubuntu only)
         if: matrix.config.os == 'ubuntu-20.04'
