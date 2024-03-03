@@ -2,9 +2,6 @@ name: Publish
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - release
 
 jobs:
   build:
@@ -68,3 +65,4 @@ jobs:
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true
           prerelease: false
+          args: "--target ${{ matrix.config.rust_target }}"
