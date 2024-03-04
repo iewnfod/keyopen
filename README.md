@@ -7,6 +7,7 @@
 </p>
 
 > ***Warning***
+>
 > Keyopen might make the same shortcut set by other applications lose their effectiveness.
 
 ## Application Show

@@ -13,6 +13,10 @@
     padding-bottom: 20px;
 }
 
+.title-box {
+    padding-top: 3vh;
+}
+
 .link {
     cursor: pointer;
 }
