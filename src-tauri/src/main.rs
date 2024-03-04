@@ -4,6 +4,7 @@
 use std::{collections::HashMap, process::Command};
 
 use binding::*;
+use log::debug;
 use tauri::{SystemTray, SystemTrayEvent, Manager, RunEvent, WindowEvent, SystemTrayMenu, CustomMenuItem};
 
 mod config;
@@ -45,7 +46,7 @@ fn get_system() -> String {
 
 #[tauri::command]
 fn register(f : String, target_path : String) {
-    println!("New Register {} -> {}", &f, &target_path);
+    debug!("New Register {} -> {}", &f, &target_path);
     set_binding_from_key(f, target_path);
     save_binding();
 }
@@ -54,11 +55,11 @@ fn register(f : String, target_path : String) {
 fn open(f : String) {
     if let Some(target_path) = get_binding_from_key(&f) {
         if target_path.is_empty() {
-            println!("Empty Binding {}", &f);
+            debug!("Empty Binding {}", &f);
             return;
         }
 
-        println!("Open Key Binding {} -> {}", &f, &target_path);
+        debug!("Open Key Binding {} -> {}", &f, &target_path);
 
         let mut command = Command::new(OPEN);
         command.arg(&target_path);
@@ -67,13 +68,13 @@ fn open(f : String) {
 
         // 如果没有成功，就尝试直接运行这个东西
         if !result.status.success() {
-            println!("Open Key Binding {} -> {} Failed", &f, &target_path);
-            println!("Try to run directly");
+            debug!("Open Key Binding {} -> {} Failed", &f, &target_path);
+            debug!("Try to run directly");
             let mut target_command = Command::new(target_path);
             let _ = target_command.spawn();
         }
     } else {
-        println!("Key Binding {} not found", &f);
+        debug!("Key Binding {} not found", &f);
     }
 }
 
@@ -97,7 +98,7 @@ fn get_binding() -> HashMap<String, String> {
         set_whole_binding(binding.clone());
         save_binding();
 
-        println!("Clean Up Binding: {:?}", &binding);
+        debug!("Clean Up Binding: {:?}", &binding);
     }
 
     binding
@@ -114,7 +115,7 @@ fn get_settings() -> HashMap<String, bool> {
 
 #[tauri::command]
 fn toggle_settings(name: String) -> bool {
-    println!("Toggle setting {}", name);
+    debug!("Toggle setting {}", name);
     match name.as_str() {
         "startup" => {
             config::toggle_startup()
@@ -132,6 +133,7 @@ fn toggle_settings(name: String) -> bool {
 }
 
 fn main() {
+    env_logger::init();
     config::init();
     load_binding();
 
@@ -152,7 +154,7 @@ fn main() {
                             std::process::exit(0);
                         },
                         "show" => {
-                            println!("Show Request");
+                            debug!("Show Request");
                             let window = app_handle.get_window("main").unwrap();
 
                             #[cfg(target_os = "macos")]
@@ -195,7 +197,7 @@ fn main() {
             RunEvent::WindowEvent { label, event, .. } => {
                 match event {
                     WindowEvent::CloseRequested { api, .. } => {
-                        println!("Hide Request");
+                        debug!("Hide Request");
 
                         #[cfg(target_os = "macos")]
                         tauri::AppHandle::hide(

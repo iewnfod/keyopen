@@ -1,6 +1,7 @@
 use std::{collections::HashMap, fs::{self, File}, path::Path, sync::Mutex};
 
 use lazy_static::lazy_static;
+use log::debug;
 
 use crate::config;
 
@@ -34,7 +35,7 @@ where T: ToString, F: ToString {
 pub fn save_binding() {
 	let binding = get_whole_binding();
     let config_string = serde_json::to_string(&binding).unwrap();
-    println!("{}", config_string);
+    debug!("{}", config_string);
     if !Path::new(config::get_config_path().as_str()).exists() {
         File::create(config::get_config_path().as_str()).unwrap();
     }
@@ -47,7 +48,7 @@ pub fn load_binding() {
             fs::read(Path::new(config::get_config_path().as_str())).unwrap()
         ).unwrap();
         let binding_map: HashMap<String, String> = serde_json::from_str(&binding).unwrap();
-        println!("{:?}", binding_map);
+        debug!("{:?}", binding_map);
 		let mut binding = BINDING.lock().unwrap();
 		*binding = binding_map;
     }

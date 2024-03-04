@@ -4,6 +4,7 @@ use std::env::current_exe;
 use std::path::PathBuf;
 use auto_launch::AutoLaunch;
 use lazy_static::lazy_static;
+use log::debug;
 
 const APP_ID: &str = "com.iewnfod.keyopen";
 const APP_NAME: &str = "KeyOpen";
@@ -75,7 +76,7 @@ fn generate_config_path() {
 	let config_file = config_path.join(CONFIG_NAME);
 	let string_path = config_file.as_os_str().to_str().unwrap();
 
-	println!("{}", &string_path);
+	debug!("{}", &string_path);
 	set_config_path(&string_path);
 }
 
