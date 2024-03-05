@@ -1,13 +1,9 @@
-use std::{collections::HashMap, fs::{self, File}, path::Path, sync::Mutex};
+use std::{collections::HashMap, fs::{self, File}, path::Path};
 
-use lazy_static::lazy_static;
 use log::debug;
 
-use crate::config;
+use crate::{config, constants::BINDING};
 
-lazy_static! {
-    static ref BINDING: Mutex<HashMap<String, String>> = Mutex::new(HashMap::new());
-}
 
 pub fn get_whole_binding() -> HashMap<String, String> {
 	let binding = BINDING.lock().unwrap();

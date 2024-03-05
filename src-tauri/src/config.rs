@@ -1,18 +1,10 @@
-use std::sync::Mutex;
 use std::{path::Path, fs::create_dir_all};
 use std::env::current_exe;
 use std::path::PathBuf;
 use auto_launch::AutoLaunch;
-use lazy_static::lazy_static;
 use log::debug;
 
-const APP_ID: &str = "com.iewnfod.keyopen";
-const APP_NAME: &str = "KeyOpen";
-const CONFIG_NAME: &str = "keyopen_config.json";
-
-lazy_static! {
-	static ref CONFIG_PATH: Mutex<String> = Mutex::new(String::new());
-}
+use crate::constants::*;
 
 
 fn get_user_home() -> PathBuf {
