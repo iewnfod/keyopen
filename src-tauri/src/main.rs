@@ -144,7 +144,7 @@ fn main() {
     let tray = SystemTray::new()
         .with_menu(tray_menu);
 
-    let mut app = tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .system_tray(tray)
         .on_system_tray_event(|app_handle, event| {
             match event {
@@ -180,12 +180,15 @@ fn main() {
             get_settings,
             toggle_settings,
             get_system,
-        ])
-        .build(tauri::generate_context!())
-        .expect("error while running tauri application");
+        ]);
 
     #[cfg(target_os = "macos")]
+    let mut app = builder.build(tauri::generate_context!()).unwrap();
+    #[cfg(target_os = "macos")]
     app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
+    #[cfg(target_os = "linux")]
+    let app = builder.build(tauri::generate_context!()).unwrap();
 
     // 如果启动显示窗口，就显示
     if if_bool_config_true("show_when_open", true) {
