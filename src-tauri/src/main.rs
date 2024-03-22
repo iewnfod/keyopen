@@ -6,7 +6,7 @@ use commands::*;
 use log::debug;
 use tauri::{
     App, AppHandle, Builder, CustomMenuItem, Manager, RunEvent, Runtime, SystemTray,
-    SystemTrayEvent, SystemTrayMenu, WindowEvent,
+    SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, WindowEvent,
 };
 
 mod binding;
@@ -31,6 +31,15 @@ where
 {
     let app = builder.build(tauri::generate_context!()).unwrap();
     app
+}
+
+fn build_tray() -> SystemTray {
+    let tray_menu = SystemTrayMenu::new()
+        .add_item(CustomMenuItem::new("show".to_string(), "Show Window").accelerator("Command+S"))
+        .add_native_item(SystemTrayMenuItem::Separator)
+        .add_item(CustomMenuItem::new("quit".to_string(), "Quit").accelerator("Command+Q"));
+
+    SystemTray::new().with_menu(tray_menu)
 }
 
 fn tray_event(app_handle: &AppHandle, event: SystemTrayEvent) {
@@ -89,14 +98,8 @@ fn main() {
     config::init();
     load_binding();
 
-    let tray_menu = SystemTrayMenu::new()
-        .add_item(CustomMenuItem::new("show".to_string(), "Show Window").accelerator("Command+S"))
-        .add_item(CustomMenuItem::new("quit".to_string(), "Quit").accelerator("Command+Q"));
-
-    let tray = SystemTray::new().with_menu(tray_menu);
-
     let builder = tauri::Builder::default()
-        .system_tray(tray)
+        .system_tray(build_tray())
         .on_system_tray_event(tray_event)
         .invoke_handler(tauri::generate_handler![
             register,
