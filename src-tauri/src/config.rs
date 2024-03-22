@@ -1,101 +1,96 @@
-use std::{path::Path, fs::create_dir_all};
-use std::env::current_exe;
-use std::path::PathBuf;
 use auto_launch::AutoLaunch;
 use log::debug;
+use std::env::current_exe;
+use std::path::PathBuf;
+use std::{fs::create_dir_all, path::Path};
 
 use crate::constants::*;
 
-
 fn get_user_home() -> PathBuf {
-	let user = users::get_user_by_uid(users::get_current_uid()).unwrap();
-	if cfg!(target_os = "macos") {
-		Path::new("/Users").join(user.name())
-	} else if cfg!(target_os = "linux") {
-		Path::new("/home").join(user.name())
-	} else {
-		Path::new(user.name()).to_path_buf()
-	}
+    let user = users::get_user_by_uid(users::get_current_uid()).unwrap();
+    if cfg!(target_os = "macos") {
+        Path::new("/Users").join(user.name())
+    } else if cfg!(target_os = "linux") {
+        Path::new("/home").join(user.name())
+    } else {
+        Path::new(user.name()).to_path_buf()
+    }
 }
 
 fn get_auto_launcher() -> AutoLaunch {
-	let mut exe_path = current_exe().unwrap();
-	while exe_path.is_symlink() {
-		exe_path = exe_path.read_link().unwrap();
-	}
+    let mut exe_path = current_exe().unwrap();
+    while exe_path.is_symlink() {
+        exe_path = exe_path.read_link().unwrap();
+    }
 
-	let os_str_exe_path = exe_path.as_mut_os_str();
-	let str_exe_path = os_str_exe_path.to_str().unwrap();
-	let args = [""];
+    let os_str_exe_path = exe_path.as_mut_os_str();
+    let str_exe_path = os_str_exe_path.to_str().unwrap();
+    let args = [""];
 
-	#[cfg(target_os = "linux")]
-	let launcher = AutoLaunch::new(
-		APP_NAME,
-		str_exe_path,
-		&args,
-	);
+    #[cfg(target_os = "linux")]
+    let launcher = AutoLaunch::new(APP_NAME, str_exe_path, &args);
 
-	#[cfg(target_os = "macos")]
-	let launcher = AutoLaunch::new(
-		APP_NAME,
-		str_exe_path,
-		false,
-		&args,
-	);
+    #[cfg(target_os = "macos")]
+    let launcher = AutoLaunch::new(APP_NAME, str_exe_path, false, &args);
 
-	launcher
+    launcher
 }
 
 fn set_startup() -> bool {
-	get_auto_launcher().enable().is_ok()
+    get_auto_launcher().enable().is_ok()
 }
 
 fn remove_startup() -> bool {
-	get_auto_launcher().disable().is_ok()
+    get_auto_launcher().disable().is_ok()
 }
 
 fn generate_config_path() {
-	let home = get_user_home();
-	let mut config_path = home.join(".config").join(APP_ID);
-	if cfg!(target_os = "macos") {
-		config_path = home.join("Library").join("Application Support").join(APP_ID);
-	}
+    let home = get_user_home();
+    let mut config_path = home.join(".config").join(APP_ID);
+    if cfg!(target_os = "macos") {
+        config_path = home
+            .join("Library")
+            .join("Application Support")
+            .join(APP_ID);
+    }
 
-	if !config_path.exists() {
-		create_dir_all(&config_path).unwrap();
-	}
+    if !config_path.exists() {
+        create_dir_all(&config_path).unwrap();
+    }
 
-	let config_file = config_path.join(CONFIG_NAME);
-	let string_path = config_file.as_os_str().to_str().unwrap();
+    let config_file = config_path.join(CONFIG_NAME);
+    let string_path = config_file.as_os_str().to_str().unwrap();
 
-	debug!("{}", &string_path);
-	set_config_path(&string_path);
+    debug!("{}", &string_path);
+    set_config_path(&string_path);
 }
 
 // public functions
 pub fn init() {
-	generate_config_path();
+    generate_config_path();
 }
 
 pub fn startup_exists() -> bool {
-	get_auto_launcher().is_enabled().unwrap()
+    get_auto_launcher().is_enabled().unwrap()
 }
 
 pub fn toggle_startup() -> bool {
-	if startup_exists() {
-		remove_startup()
-	} else {
-		set_startup()
-	}
+    if startup_exists() {
+        remove_startup()
+    } else {
+        set_startup()
+    }
 }
 
 pub fn get_config_path() -> String {
-	let config_path = CONFIG_PATH.lock().unwrap();
-	config_path.to_string()
+    let config_path = CONFIG_PATH.lock().unwrap();
+    config_path.to_string()
 }
 
 pub fn set_config_path<T>(s: T)
-where T: ToString {
-	let mut config_path = CONFIG_PATH.lock().unwrap();
-	*config_path = s.to_string();
+where
+    T: ToString,
+{
+    let mut config_path = CONFIG_PATH.lock().unwrap();
+    *config_path = s.to_string();
 }

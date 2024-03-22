@@ -1,11 +1,11 @@
 {
-  "tauri": {
-    "systemTray": {
-      "iconPath": "icons/tray.png",
-      "iconAsTemplate": true
-    },
-    "bundle": {
-      "targets": "all"
+    "tauri": {
+        "systemTray": {
+            "iconPath": "icons/tray.png",
+            "iconAsTemplate": true
+        },
+        "bundle": {
+            "targets": "all"
+        }
     }
-  }
 }

@@ -2,8 +2,10 @@ use std::{collections::HashMap, process::Command};
 
 use log::debug;
 
-use crate::{config, constants::OPEN, get_binding_from_key, get_whole_binding, save_binding, set_binding_from_key, set_whole_binding};
-
+use crate::{
+    config, constants::OPEN, get_binding_from_key, get_whole_binding, save_binding,
+    set_binding_from_key, set_whole_binding,
+};
 
 fn toggle_bool_config(key: &str, default: bool) {
     if if_bool_config_true(key, default) {
@@ -33,14 +35,14 @@ pub fn get_system() -> String {
 }
 
 #[tauri::command]
-pub fn register(f : String, target_path : String) {
+pub fn register(f: String, target_path: String) {
     debug!("New Register {} -> {}", &f, &target_path);
     set_binding_from_key(f, target_path);
     save_binding();
 }
 
 #[tauri::command]
-pub fn open(f : String) {
+pub fn open(f: String) {
     if let Some(target_path) = get_binding_from_key(&f) {
         if target_path.is_empty() {
             debug!("Empty Binding {}", &f);
@@ -96,8 +98,14 @@ pub fn get_binding() -> HashMap<String, String> {
 pub fn get_settings() -> HashMap<String, bool> {
     let mut map = HashMap::new();
     map.insert("startup".to_string(), config::startup_exists());
-    map.insert("show_when_open".to_string(), if_bool_config_true("show_when_open", true));
-    map.insert("dark_mod".to_string(), if_bool_config_true("dark_mod", false));
+    map.insert(
+        "show_when_open".to_string(),
+        if_bool_config_true("show_when_open", true),
+    );
+    map.insert(
+        "dark_mod".to_string(),
+        if_bool_config_true("dark_mod", false),
+    );
     map
 }
 
@@ -105,17 +113,15 @@ pub fn get_settings() -> HashMap<String, bool> {
 pub fn toggle_settings(name: String) -> bool {
     debug!("Toggle setting {}", name);
     match name.as_str() {
-        "startup" => {
-            config::toggle_startup()
-        },
+        "startup" => config::toggle_startup(),
         "show_when_open" => {
             toggle_bool_config("show_when_open", true);
             true
-        },
+        }
         "dark_mod" => {
             toggle_bool_config("dark_mod", false);
             true
-        },
-        _ => { true }
+        }
+        _ => true,
     }
 }

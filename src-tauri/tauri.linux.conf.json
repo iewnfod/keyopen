@@ -1,13 +1,13 @@
 {
-  "tauri": {
-    "systemTray": {
-      "iconPath": "icons/tray.png"
-    },
-    "bundle": {
-      "targets": "all",
-      "deb": {
-        "desktopTemplate": "templates/keyopen.desktop"
-      }
+    "tauri": {
+        "systemTray": {
+            "iconPath": "icons/tray.png"
+        },
+        "bundle": {
+            "targets": "all",
+            "deb": {
+                "desktopTemplate": "templates/keyopen.desktop"
+            }
+        }
     }
-  }
 }
