@@ -1,10 +1,9 @@
-use std::{collections::HashMap, process::Command};
+use std::collections::HashMap;
 
 use log::debug;
 
 use crate::{
-    config, constants::OPEN, get_binding_from_key, get_whole_binding, save_binding,
-    set_binding_from_key, set_whole_binding,
+    config, get_binding_from_key, get_whole_binding, open::sub_open, save_binding, set_binding_from_key, set_whole_binding
 };
 
 fn toggle_bool_config(key: &str, default: bool) {
@@ -51,18 +50,7 @@ pub fn open(f: String) {
 
         debug!("Open Key Binding {} -> {}", &f, &target_path);
 
-        let mut command = Command::new(OPEN);
-        command.arg(&target_path);
-
-        let result = command.output().unwrap();
-
-        // 如果没有成功，就尝试直接运行这个东西
-        if !result.status.success() {
-            debug!("Open Key Binding {} -> {} Failed", &f, &target_path);
-            debug!("Try to run directly");
-            let mut target_command = Command::new(target_path);
-            let _ = target_command.spawn();
-        }
+        sub_open(&target_path);
     } else {
         debug!("Key Binding {} not found", &f);
     }

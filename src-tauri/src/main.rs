@@ -13,6 +13,7 @@ mod binding;
 mod commands;
 mod config;
 mod constants;
+mod open;
 
 #[cfg(target_os = "macos")]
 fn build_app<T>(builder: Builder<T>) -> App<T>
