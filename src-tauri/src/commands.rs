@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-
 use log::debug;
 
 use crate::{
@@ -17,20 +16,20 @@ fn toggle_bool_config(key: &str, default: bool) {
 
 pub fn if_bool_config_true(key: &str, default: bool) -> bool {
     if let Some(k) = get_binding_from_key(key) {
-        k == "1".to_string()
+        &k == "1"
     } else {
         default
     }
 }
 
 #[tauri::command]
-pub fn get_system() -> String {
+pub fn get_system() -> &'static str {
     #[cfg(target_os = "windows")]
-    return "windows".to_string();
+    return "windows";
     #[cfg(target_os = "macos")]
-    return "macos".to_string();
+    return "macos";
     #[cfg(target_os = "linux")]
-    return "linux".to_string();
+    return "linux";
 }
 
 #[tauri::command]
@@ -105,11 +104,11 @@ pub fn toggle_settings(name: String) -> bool {
         "show_when_open" => {
             toggle_bool_config("show_when_open", true);
             true
-        }
+        },
         "dark_mod" => {
             toggle_bool_config("dark_mod", false);
             true
-        }
-        _ => true,
+        },
+        _ => true
     }
 }

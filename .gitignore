@@ -26,3 +26,5 @@ src/lib/*
 
 package-lock.json
 Cargo.lock
+
+.VSCodeCounter/
