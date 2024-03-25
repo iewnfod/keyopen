@@ -1,21 +1,6 @@
 use std::process::Command;
 use log::debug;
 
-fn run_show_window_apple_script(app_name: &String) -> bool {
-	let apple_script_1 = format!("tell application \"{}\" to activate", app_name);
-	let apple_script_2 = format!("tell application \"System Events\" to click UI element \"{}\" of list 1 of application process \"Dock\"", app_name);
-
-	let mut command1 = Command::new("osascript");
-	command1.arg("-e").arg(&apple_script_1);
-	let result1 = command1.output().unwrap();
-
-	let mut command2 = Command::new("osascript");
-	command2.arg("-e").arg(&apple_script_2);
-	let result2 = command2.output().unwrap();
-
-	result1.status.success() && result2.status.success()
-}
-
 fn sub_sub_open(target_path: &String) {
 	use crate::constants::OPEN;
 
@@ -33,6 +18,22 @@ fn sub_sub_open(target_path: &String) {
 	} else {
 		debug!("Success to open {}", target_path);
 	}
+}
+
+#[cfg(target_os = "macos")]
+fn run_show_window_apple_script(app_name: &String) -> bool {
+	let apple_script_1 = format!("tell application \"{}\" to activate", app_name);
+	let apple_script_2 = format!("tell application \"System Events\" to click UI element \"{}\" of list 1 of application process \"Dock\"", app_name);
+
+	let mut command1 = Command::new("osascript");
+	command1.arg("-e").arg(&apple_script_1);
+	let result1 = command1.output().unwrap();
+
+	let mut command2 = Command::new("osascript");
+	command2.arg("-e").arg(&apple_script_2);
+	let result2 = command2.output().unwrap();
+
+	result1.status.success() && result2.status.success()
 }
 
 #[cfg(target_os = "macos")]
