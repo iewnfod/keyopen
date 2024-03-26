@@ -22,18 +22,29 @@ fn sub_sub_open(target_path: &String) {
 
 #[cfg(target_os = "macos")]
 fn run_show_window_apple_script(app_name: &String) -> bool {
-	let apple_script_1 = format!("tell application \"{}\" to activate", app_name);
-	let apple_script_2 = format!("tell application \"System Events\" to click UI element \"{}\" of list 1 of application process \"Dock\"", app_name);
+	// check accessibility
+	use macos_accessibility_client::accessibility;
 
-	let mut command1 = Command::new("osascript");
-	command1.arg("-e").arg(&apple_script_1);
-	let result1 = command1.output().unwrap();
+	if !accessibility::application_is_trusted_with_prompt() {
+		return false;
+	}
 
-	let mut command2 = Command::new("osascript");
-	command2.arg("-e").arg(&apple_script_2);
-	let result2 = command2.output().unwrap();
+	let apple_scripts = vec![
+		format!("tell application \"{}\" to activate", app_name),
+		format!("tell application \"System Events\" to click UI element \"{}\" of list 1 of application process \"Dock\"", app_name)
+	];
 
-	result1.status.success() && result2.status.success()
+	for apple_script in apple_scripts {
+		let mut command = Command::new("osascript");
+		command.arg("-e").arg(&apple_script);
+		let result = command.output().unwrap();
+
+		if !result.status.success() {
+			return false;
+		}
+	}
+
+	true
 }
 
 #[cfg(target_os = "macos")]

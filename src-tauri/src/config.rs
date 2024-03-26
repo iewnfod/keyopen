@@ -1,21 +1,10 @@
 use auto_launch::AutoLaunch;
+use home::home_dir;
 use log::debug;
 use std::env::current_exe;
-use std::path::PathBuf;
-use std::{fs::create_dir_all, path::Path};
+use std::fs::create_dir_all;
 
 use crate::constants::*;
-
-fn get_user_home() -> PathBuf {
-    let user = users::get_user_by_uid(users::get_current_uid()).unwrap();
-    if cfg!(target_os = "macos") {
-        Path::new("/Users").join(user.name())
-    } else if cfg!(target_os = "linux") {
-        Path::new("/home").join(user.name())
-    } else {
-        Path::new(user.name()).to_path_buf()
-    }
-}
 
 fn get_auto_launcher() -> AutoLaunch {
     let mut exe_path = current_exe().unwrap();
@@ -45,7 +34,7 @@ fn remove_startup() -> bool {
 }
 
 fn generate_config_path() {
-    let home = get_user_home();
+    let home = home_dir().unwrap();
     let mut config_path = home.join(".config").join(APP_ID);
     if cfg!(target_os = "macos") {
         config_path = home

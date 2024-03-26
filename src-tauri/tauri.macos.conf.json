@@ -5,7 +5,10 @@
             "iconAsTemplate": true
         },
         "bundle": {
-            "targets": "all"
+            "targets": "all",
+            "macOS": {
+                "minimumSystemVersion": "10.13"
+            }
         }
     }
 }
