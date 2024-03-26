@@ -29,6 +29,15 @@ sudo spctl --master-disable
 sudo xattr -rd com.apple.quarantine /Applications/keyopen.app
 ```
 
+### When you cannot activate the window automatically after pressed function key...
+The permission has already been added to TCC database.
+You should manually activate it by following steps:
+1. Open `System Settings`.
+2. Enter `Privacy and Security`.
+3. Select `Accessibility`.
+4. Turn on the switch of `keyopen`.
+5. Restart `keyopen`.
+
 ## Develop
 1. Run [`init.sh`](scripts/init.sh) to initialize your environment.
 2. Run [`dev.sh`](scripts/dev.sh) to run this application in a debug mod.
