@@ -28,3 +28,4 @@ package-lock.json
 Cargo.lock
 
 .VSCodeCounter/
+gen/
