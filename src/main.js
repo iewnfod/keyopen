@@ -200,6 +200,7 @@ function new_key(key, value) {
 function restore_keys() {
     invoke("get_binding").then((r) => {
         let keys = Object.keys(r);
+        keys.sort();
         for (let i = 0; i < keys.length; i ++) {
             let key = keys[i];
             if (settings.indexOf(key) !== -1) continue;
