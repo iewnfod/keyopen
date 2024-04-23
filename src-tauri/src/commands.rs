@@ -56,29 +56,20 @@ pub fn open(f: String) {
 }
 
 #[tauri::command]
-pub fn get_binding() -> HashMap<String, String> {
-    let mut binding = get_whole_binding();
+pub fn get_binding() -> Vec<HashMap<String, String>> {
+    let binding = get_whole_binding();
 
-    let mut remove_keys = vec![];
+    let mut bindings: Vec<HashMap<String, String>> = vec![];
     for (key, value) in binding.iter() {
-        if value.is_empty() {
-            remove_keys.push(key.clone());
+        if !value.is_empty() {
+            let mut b = HashMap::new();
+            b.insert("key".to_string(), key.to_string());
+            b.insert("value".to_string(), value.to_string());
+            bindings.push(b);
         }
     }
 
-    if !remove_keys.is_empty() {
-        // 删除
-        for key in remove_keys.iter_mut() {
-            binding.remove(key);
-        }
-        // 保存
-        set_whole_binding(binding.clone());
-        save_binding();
-
-        debug!("Clean Up Binding: {:?}", &binding);
-    }
-
-    binding
+    bindings
 }
 
 #[tauri::command]
