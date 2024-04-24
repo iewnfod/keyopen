@@ -1,4 +1,5 @@
 use std::{fs::File, io::Write, path::PathBuf, sync::Mutex};
+use log::debug;
 use serde::{Deserialize, Serialize};
 use lazy_static::lazy_static;
 
@@ -86,7 +87,7 @@ pub fn get_bindings() -> Vec<Binding> {
 
 #[tauri::command]
 pub fn set_bindings(new_bindings: Vec<Binding>) {
-    println!("{:?}", &new_bindings);
+    debug!("{:?}", &new_bindings);
     let mut bindings = BINDINGS.lock().unwrap();
     bindings.set_bindings(new_bindings);
 }

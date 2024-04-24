@@ -4,15 +4,23 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import SearchBox from "./SearchBox.jsx";
 
-const IconMenu = () => {
+function IconMenu(props) {
+    const {onPageChange} = props;
+
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
-    const handleClick = (event) => {
+    function handleClick(event) {
         setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
+    }
+
+    function handlePageChange(event) {
+        onPageChange(event);
+        handleClose();
+    }
+
+    function handleClose() {
         setAnchorEl(null);
-    };
+    }
 
     return (
         <div>
@@ -37,23 +45,23 @@ const IconMenu = () => {
                     'aria-labelledby': 'icon-menu-bt',
                 }}
             >
-                <MenuItem onClick={handleClose}>Main Page</MenuItem>
-                <MenuItem onClick={handleClose}>Settings</MenuItem>
-                <MenuItem onClick={handleClose}>Release Info</MenuItem>
+                <MenuItem value={1} onClick={handlePageChange}>Main Page</MenuItem>
+                <MenuItem value={2} onClick={handlePageChange}>Settings</MenuItem>
+                <MenuItem value={3} onClick={handlePageChange}>Release Info</MenuItem>
             </Menu>
         </div>
     );
 }
 
-export default function TitleMenu() {
+export default function TitleMenu(props) {
+    const {onPageChange} = props;
+
     return (
         <Box data-tauri-drag-region sx={{ flexGrow: 1 }}>
             <AppBar position="static">
                 <Toolbar variant="dense" sx={{ flexDirection: "row-reverse", gap: 1 }}>
-                    <IconMenu/>
-                    <div>
-                        <SearchBox/>
-                    </div>
+                    <IconMenu onPageChange={onPageChange}/>
+                    <SearchBox/>
                 </Toolbar>
             </AppBar>
         </Box>

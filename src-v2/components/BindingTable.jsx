@@ -16,14 +16,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import {useRecordHotkeys} from "react-hotkeys-hook";
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import Commands from "../commands.js";
-
-function getUuid() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        let r = (Math.random() * 16) | 0,
-            v = c === 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-    });
-}
+import {register, unregisterAll} from "@tauri-apps/api/globalShortcut";
 
 const columns = [
     {
@@ -41,6 +34,14 @@ const columns = [
 ];
 
 let rawRows = await invoke(Commands.getBindings);
+
+function getUuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        let r = (Math.random() * 16) | 0,
+            v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+}
 
 function BindingTableToolbar(props) {
     const { selectNum, onDelete, onNew } = props;
@@ -203,7 +204,7 @@ function BindingTableRow(props) {
         let newRow = {
             id: rowData.id,
             key: rowData.key,
-            type: event.target.value,
+            b_type: event.target.value,
             value: rowData.value
         }
         onRowDataChange(newRow);
@@ -214,7 +215,7 @@ function BindingTableRow(props) {
         let newRow = {
             id: rowData.id,
             key: Array.from(keys),
-            type: rowData.type,
+            b_type: rowData.b_type,
             value: rowData.value
         };
         onRowDataChange(newRow);
@@ -225,7 +226,7 @@ function BindingTableRow(props) {
         onRowDataChange({
             id: rowData.id,
             key: rowData.key,
-            type: rowData.type,
+            b_type: rowData.b_type,
             value: event.target.value
         });
     }
@@ -283,6 +284,23 @@ export default function BindingTable() {
     const [selected, setSelected] = React.useState([]);
     const [rows, setRows] = React.useState(rawRows);
 
+    let activated = false;
+    if (activated === false) {activateBindings(rows)}
+
+    function activateBindings(bindings) {
+        unregisterAll().then(() => {
+            for (let i = 0; i < bindings.length; i += 1) {
+                register(
+                    bindings[i].key.join('+'),
+                    () => {
+                        invoke(Commands.openKey, {b: bindings[i]}).then(() => {});
+                    }
+                ).then(() => {});
+            }
+        });
+        activated = true;
+    }
+
     function handleSelectAllClick(event) {
         if (event.target.checked) {
             let r = [];
@@ -339,7 +357,7 @@ export default function BindingTable() {
     }
 
     function handleNew() {
-        let newRows = [{id: getUuid(), key: [], type: "Path", value: ""}];
+        let newRows = [{id: getUuid(), key: [], b_type: "Path", value: ""}];
         for (let i = 0; i < rows.length; i++) {
             newRows.push(rows[i]);
         }
@@ -347,6 +365,7 @@ export default function BindingTable() {
     }
 
     function handleSave(saveRows) {
+        activateBindings(saveRows);
         invoke(Commands.setBindings, {newBindings: saveRows}).then(() => {});
     }
 

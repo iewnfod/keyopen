@@ -1,5 +1,8 @@
-use std::process::Command;
+use std::{fs::{create_dir_all, File}, io::Write, path::PathBuf, process::Command, str::FromStr};
 use log::debug;
+use tauri::command;
+
+use crate::{binding::{BType, Binding}, constants::APP_ID};
 
 fn sub_sub_open(target_path: &String) {
 	use crate::constants::OPEN;
@@ -48,7 +51,7 @@ fn run_show_window_apple_script(app_name: &String) -> bool {
 }
 
 #[cfg(target_os = "macos")]
-pub fn sub_open(target_path: &String) {
+fn sub_open(target_path: &String) {
     use std::path::Path;
 
 	let p = Path::new(target_path);
@@ -74,6 +77,44 @@ pub fn sub_open(target_path: &String) {
 }
 
 #[cfg(not(target_os = "macos"))]
-pub fn sub_open(target_path: &String) {
+fn sub_open(target_path: &String) {
 	sub_sub_open(target_path);
+}
+
+fn shell_open(value: &String) {
+	let str_temp_path = format!("/tmp/{}/temp_shell.sh", APP_ID);
+	let temp_path = PathBuf::from_str(str_temp_path.as_str()).unwrap();
+
+	if !temp_path.parent().unwrap().exists() {
+		create_dir_all(temp_path.parent().unwrap()).unwrap();
+	}
+
+	let mut file = File::create(temp_path).unwrap();
+
+	file.write_all(value.as_bytes()).unwrap();
+
+	let mut command = Command::new("/bin/sh");
+	command.arg(&str_temp_path);
+	debug!("{:?}", &command);
+
+	command.spawn().unwrap();
+}
+
+#[tauri::command]
+pub fn open_key(b: Binding) {
+	if b.value.is_empty() {
+		return;
+	}
+	debug!("Call: {:?}", &b);
+	match b.b_type {
+		BType::Path => {
+			sub_open(&b.value);
+		},
+		BType::Shell => {
+			shell_open(&b.value);
+		},
+		BType::Map => {
+			debug!("Not Supported");
+		}
+	}
 }

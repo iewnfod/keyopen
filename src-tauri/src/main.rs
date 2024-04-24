@@ -1,7 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use binding::*;
 use log::debug;
 use tauri::{
     App, AppHandle, Builder, CustomMenuItem, Manager, RunEvent, Runtime, SystemTray,
@@ -12,6 +11,9 @@ mod binding;
 mod config;
 mod constants;
 mod open;
+
+use crate::binding::{get_bindings, set_bindings};
+use crate::open::open_key;
 
 #[cfg(target_os = "macos")]
 fn build_app<T>(builder: Builder<T>) -> App<T>
@@ -100,7 +102,8 @@ fn main() {
         .on_system_tray_event(tray_event)
         .invoke_handler(tauri::generate_handler![
             get_bindings,
-            set_bindings
+            set_bindings,
+            open_key
         ]);
 
     let app = build_app(builder);
