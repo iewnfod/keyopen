@@ -8,7 +8,6 @@ export default function SettingPage(props) {
     const {settings, onSettingChange} = props;
 
     function handleToggleSetting(event) {
-        console.log(event.target.checked);
         onSettingChange(event.target.name, event.target.checked);
     }
 

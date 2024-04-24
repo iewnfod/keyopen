@@ -7,8 +7,8 @@ import commands from "../commands.js";
 
 export default function ReleasePage() {
     function openGithub() {
-        invoke(commands.openKey, {b:
-            {
+        invoke(commands.openKey, {
+            b: {
                 id: "",
                 key: [],
                 b_type: "Path",

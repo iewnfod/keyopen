@@ -3,7 +3,7 @@ import TitleMenu from "./components/TitleMenu.jsx";
 import MainPage from "./components/MainPage.jsx";
 import SettingPage from "./components/SettingPage.jsx";
 import ReleasePage from "./components/ReleasePage.jsx";
-import {Box, createTheme, ThemeProvider} from "@mui/material";
+import {Box, createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 import {invoke} from "@tauri-apps/api";
 import Commands from "./commands.js";
 
@@ -25,8 +25,6 @@ export default function App() {
     const [pageNum, setPageNum] = useState(1);
     const [settings, setSettings] = useState(new Settings());
 
-    console.log(settings);
-
     function handlePageChange(event) {
         setPageNum(event.target.value);
     }
@@ -41,8 +39,6 @@ export default function App() {
                 newSetting[key] = value;
             }
         }
-
-        console.log(newSetting);
 
         invoke(Commands.setSettings, {newSettings: newSetting}).then(() => {
             setSettings(newSetting);
@@ -61,10 +57,14 @@ export default function App() {
         <ThemeProvider theme={
             createTheme({
                 palette: {
-                    mode: settings.dark_mode ? "dark" : "light"
+                    mode: settings.dark_mode ? "dark" : "light",
+                    background: {
+                        default: settings.dark_mode ? '#2B2E31' : '#FFF'
+                    }
                 }
             })
         }>
+            <CssBaseline/>
             <TitleMenu onPageChange={handlePageChange}/>
             <CurrentPage/>
         </ThemeProvider>
