@@ -65,7 +65,7 @@ export default function App() {
             })
         }>
             <CssBaseline/>
-            <TitleMenu onPageChange={handlePageChange}/>
+            <TitleMenu data-tauri-drag-region onPageChange={handlePageChange}/>
             <CurrentPage/>
         </ThemeProvider>
     );
