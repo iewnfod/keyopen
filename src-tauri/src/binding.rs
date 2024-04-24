@@ -1,92 +1,59 @@
-use std::{fs::File, io::Write, path::PathBuf, sync::Mutex};
-use serde::{Deserialize, Serialize};
-use lazy_static::lazy_static;
+use std::{
+    collections::HashMap,
+    fs::{self, File},
+    path::Path,
+};
 
-use crate::{config::get_config_dir, constants::BINDING_FILE_NAME};
+use log::debug;
 
-lazy_static! {
-    pub static ref BINDINGS: Mutex<Bindings> = Mutex::new(Bindings::default());
+use crate::{config, constants::BINDING};
+
+pub fn get_whole_binding() -> HashMap<String, String> {
+    let binding = BINDING.lock().unwrap();
+    let b = binding;
+    b.clone()
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub enum BType {
-    Path,
-    Shell,
-    Map
+pub fn set_whole_binding(b: HashMap<String, String>) {
+    let mut binding = BINDING.lock().unwrap();
+    *binding = b;
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Binding {
-    id: String,
-    pub key: Vec<String>,
-    #[serde(default = "default_b_type")]
-    pub b_type: BType,
-    pub value: String
+pub fn get_binding_from_key<T>(key: T) -> Option<String>
+where
+    T: ToString,
+{
+    let binding = BINDING.lock().unwrap();
+    binding.get(&key.to_string()).cloned()
 }
 
-fn default_b_type() -> BType {
-    BType::Path
+pub fn set_binding_from_key<T, F>(key: T, value: F)
+where
+    T: ToString,
+    F: ToString,
+{
+    let mut binding = BINDING.lock().unwrap();
+    binding.insert(key.to_string(), value.to_string());
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Bindings {
-    b: Vec<Binding>
-}
-
-impl Bindings {
-    pub fn new() -> Self {
-        Self { b: vec![] }
+pub fn save_binding() {
+    let binding = get_whole_binding();
+    let config_string = serde_json::to_string(&binding).unwrap();
+    debug!("{}", config_string);
+    if !Path::new(config::get_config_path().as_str()).exists() {
+        File::create(config::get_config_path().as_str()).unwrap();
     }
-
-    fn get_save_path() -> PathBuf {
-        let binding_path = get_config_dir().join(BINDING_FILE_NAME);
-        if !binding_path.exists() {
-            File::create(&binding_path).unwrap();
-        }
-        binding_path
-    }
-
-    pub fn from_save() -> Result<Self, ()> {
-        let binding_path = Self::get_save_path();
-
-        let binding_file = File::open(binding_path).unwrap();
-        match serde_json::from_reader(binding_file) {
-            Ok(b) => Ok(b),
-            Err(_) => Err(())
-        }
-    }
-
-    pub fn set_bindings(&mut self, new_bindings: Vec<Binding>) {
-        self.b = new_bindings;
-
-        let s = serde_json::to_string_pretty(self).unwrap();
-        let mut file = File::create(Self::get_save_path()).unwrap();
-        file.write_all(s.as_bytes()).unwrap();
-    }
-
-    pub fn get_bindings(&self) -> Vec<Binding> {
-        self.b.clone()
-    }
+    fs::write(Path::new(config::get_config_path().as_str()), config_string).unwrap();
 }
 
-impl Default for Bindings {
-    fn default() -> Self {
-        match Self::from_save() {
-            Ok(b) => b,
-            Err(_) => Self::new()
-        }
+pub fn load_binding() {
+    if Path::new(config::get_config_path().as_str()).exists() {
+        let binding =
+            String::from_utf8(fs::read(Path::new(config::get_config_path().as_str())).unwrap())
+                .unwrap();
+        let binding_map: HashMap<String, String> = serde_json::from_str(&binding).unwrap();
+        debug!("{:?}", binding_map);
+        let mut binding = BINDING.lock().unwrap();
+        *binding = binding_map;
     }
-}
-
-#[tauri::command]
-pub fn get_bindings() -> Vec<Binding> {
-    let bindings = BINDINGS.lock().unwrap();
-    bindings.get_bindings()
-}
-
-#[tauri::command]
-pub fn set_bindings(new_bindings: Vec<Binding>) {
-    println!("{:?}", &new_bindings);
-    let mut bindings = BINDINGS.lock().unwrap();
-    bindings.set_bindings(new_bindings);
 }

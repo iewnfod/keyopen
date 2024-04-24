@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use binding::*;
+use commands::*;
 use log::debug;
 use tauri::{
     App, AppHandle, Builder, CustomMenuItem, Manager, RunEvent, Runtime, SystemTray,
@@ -9,6 +10,7 @@ use tauri::{
 };
 
 mod binding;
+mod commands;
 mod config;
 mod constants;
 mod open;
@@ -94,21 +96,27 @@ fn main_loop(app_handle: &AppHandle, event: RunEvent) {
 
 fn main() {
     env_logger::init();
+    config::init();
+    load_binding();
 
     let builder = tauri::Builder::default()
         .system_tray(build_tray())
         .on_system_tray_event(tray_event)
         .invoke_handler(tauri::generate_handler![
-            get_bindings,
-            set_bindings
+            register,
+            open,
+            get_binding,
+            get_settings,
+            toggle_settings,
+            get_system,
         ]);
 
     let app = build_app(builder);
 
     // 如果启动显示窗口，就显示
-    // if if_bool_config_true("show_when_open", true) {
-    //     app.get_window("main").unwrap().show().unwrap();
-    // }
+    if if_bool_config_true("show_when_open", true) {
+        app.get_window("main").unwrap().show().unwrap();
+    }
 
     app.run(main_loop);
 }

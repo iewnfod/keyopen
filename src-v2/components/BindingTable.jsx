@@ -15,7 +15,6 @@ import TableBody from "@mui/material/TableBody";
 import EditIcon from '@mui/icons-material/Edit';
 import {useRecordHotkeys} from "react-hotkeys-hook";
 import StopCircleIcon from '@mui/icons-material/StopCircle';
-import Commands from "../commands.js";
 
 function getUuid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -40,7 +39,15 @@ const columns = [
     }
 ];
 
-let rawRows = await invoke(Commands.getBindings);
+let rawRows = await invoke('get_binding')
+for (let i = 0; i < rawRows.length; i ++) {
+    rawRows[i]['id'] = getUuid();
+    for (let k = 0; k < columns.length; k ++) {
+        if (!rawRows[i][columns[k].key]) {
+            rawRows[i][columns[k].key] = "path";
+        }
+    }
+}
 
 function BindingTableToolbar(props) {
     const { selectNum, onDelete, onNew } = props;
@@ -94,7 +101,7 @@ function BindingTableToolbar(props) {
 }
 
 function BindingTableHead(props) {
-    const { selected, rows, onSelectAllClick } = props;
+    const { selectNum, allSelected, onSelectAllClick } = props;
 
     return (
         <TableHead>
@@ -102,8 +109,8 @@ function BindingTableHead(props) {
                 <TableCell padding="checkbox" sx={{pl: 1}}>
                     <Checkbox
                         color="primary"
-                        indeterminate={selected.length > 0 && selected.length !== rows.length}
-                        checked={selected.length === rows.length}
+                        indeterminate={selectNum > 0 && allSelected === false}
+                        checked={allSelected}
                         onChange={onSelectAllClick}
                         inputProps={{
                             'aria-label': 'Select All Rows'
@@ -138,9 +145,9 @@ function TypeSelect(props) {
                     value={currentType}
                     onChange={onTypeChange}
                 >
-                    <MenuItem value="Path">Path</MenuItem>
-                    <MenuItem value="Shell">Shell Script</MenuItem>
-                    <MenuItem value="Map">Key Map</MenuItem>
+                    <MenuItem value="path">Path</MenuItem>
+                    <MenuItem value="shell">Shell Script</MenuItem>
+                    <MenuItem value="key">Key Map</MenuItem>
                 </Select>
             </FormControl>
         </Box>
@@ -162,19 +169,11 @@ function RecordHotKeyField(props) {
         }
     }
 
-    function keyListToString(keyList) {
-        let newKeys = [];
-        for (let i = 0; i < keyList.length; i++) {
-            newKeys.push(keyList[i].charAt(0).toUpperCase() + keyList[i].slice(1));
-        }
-        return newKeys.join(' + ');
-    }
-
     return (
         <Box sx={{minWidth: 25, display: 'flex', flexDirection: 'row'}}>
             <TextField
                 variant="outlined"
-                value={keyListToString(isRecording ? Array.from(keys) : currentHotKey)}
+                value={isRecording ? Array.from(keys).join('+') : currentHotKey}
                 size="small"
                 inputProps={{
                     readOnly: true,
@@ -197,28 +196,24 @@ function RecordHotKeyField(props) {
 }
 
 function BindingTableRow(props) {
-    const { rowData, isSelected, onSelectClick, onRowDataChange, onSave } = props;
+    const { rowData, isSelected, onSelectClick, onRowDataChange } = props;
 
     function handleTypeChange(event) {
-        let newRow = {
+        onRowDataChange({
             id: rowData.id,
             key: rowData.key,
             type: event.target.value,
             value: rowData.value
-        }
-        onRowDataChange(newRow);
-        onSave(newRow);
+        });
     }
 
     function handleHotKeyChange(keys) {
-        let newRow = {
+        onRowDataChange({
             id: rowData.id,
-            key: Array.from(keys),
+            key: Array.from(keys).join('+'),
             type: rowData.type,
             value: rowData.value
-        };
-        onRowDataChange(newRow);
-        onSave(newRow);
+        });
     }
 
     function handleValueChange(event) {
@@ -258,7 +253,7 @@ function BindingTableRow(props) {
 
             <TableCell sx={{width: '20%'}}>
                 <TypeSelect
-                    currentType={rowData.b_type}
+                    currentType={rowData.type}
                     onTypeChange={handleTypeChange}
                 />
             </TableCell>
@@ -269,7 +264,6 @@ function BindingTableRow(props) {
                     size="small"
                     value={rowData.value}
                     onChange={handleValueChange}
-                    onBlur={onSave}
                     sx={{
                         width: '100%'
                     }}
@@ -335,33 +329,14 @@ export default function BindingTable() {
         }
         setRows(newRows);
         setSelected([]);
-        handleSave(newRows);
     }
 
     function handleNew() {
-        let newRows = [{id: getUuid(), key: [], type: "Path", value: ""}];
+        let newRows = [{id: getUuid(), key: "", type: "path", value: ""}];
         for (let i = 0; i < rows.length; i++) {
             newRows.push(rows[i]);
         }
         setRows(newRows);
-    }
-
-    function handleSave(saveRows) {
-        invoke(Commands.setBindings, {newBindings: saveRows}).then(() => {});
-    }
-
-    function handleSaveRow(newRow) {
-        let newRows = [];
-
-        for (let i = 0; i < rows.length; i++) {
-            if (rows[i].id === newRow.id) {
-                newRows.push(newRow)
-            } else {
-                newRows.push(rows[i]);
-            }
-        }
-
-        handleSave(newRows);
     }
 
     return (
@@ -371,39 +346,25 @@ export default function BindingTable() {
                 onDelete={handleDelete}
                 onNew={handleNew}
             />
-            {rows.length > 0 ? (
-                <TableContainer>
-                    <Table aria-labelledby="tableTitle">
-                        <BindingTableHead
-                            selected={selected}
-                            rows={rows}
-                            onSelectAllClick={handleSelectAllClick}
-                        />
-                        <TableBody>
-                            {rows.map((row) => (
-                                <BindingTableRow
-                                    rowData={row}
-                                    isSelected={selected.includes(row.id)}
-                                    onSelectClick={handleSelectClick}
-                                    onRowDataChange={handleRowDataChange}
-                                    onSave={handleSaveRow}
-                                />
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            ) : (
-                <Typography
-                    component="div"
-                    variant="body1"
-                    sx={{
-                        textAlign: 'center',
-                        pt: 1
-                    }}
-                >
-                    Add a new row to start using Key Open!
-                </Typography>
-            )}
+            <TableContainer>
+                <Table aria-labelledby="tableTitle">
+                    <BindingTableHead
+                        selectNum={selected.length}
+                        allSelect={selected.length===rows.length}
+                        onSelectAllClick={handleSelectAllClick}
+                    />
+                    <TableBody>
+                        {rows.map((row) => (
+                            <BindingTableRow
+                                rowData={row}
+                                isSelected={selected.includes(row.id)}
+                                onSelectClick={handleSelectClick}
+                                onRowDataChange={handleRowDataChange}
+                            />
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         </Box>
     );
 }
