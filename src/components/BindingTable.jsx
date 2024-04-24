@@ -1,4 +1,4 @@
-import {alpha, Box, FormControl, IconButton, InputLabel, MenuItem, Select, TextField, Toolbar} from "@mui/material";
+import {alpha, Box, FormControl, IconButton, InputLabel, MenuItem, Select, Switch, TextField, Toolbar} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import React from "react";
 import Tooltip from "@mui/material/Tooltip";
@@ -19,18 +19,7 @@ import Commands from "../commands.js";
 import {register, unregisterAll} from "@tauri-apps/api/globalShortcut";
 
 const columns = [
-    {
-        key: 'key',
-        name: 'Key',
-    },
-    {
-        key: 'type',
-        name: 'Type',
-    },
-    {
-        key: 'value',
-        name: 'Value',
-    }
+    'Key', 'Type', 'Value', 'Enabled'
 ];
 
 let rawRows = await invoke(Commands.getBindings);
@@ -75,21 +64,19 @@ function BindingTableToolbar(props) {
                 </Typography>
             )}
 
-            {
-                selectNum > 0 ? (
-                    <Tooltip title="Delete">
-                        <IconButton onClick={onDelete}>
-                            <DeleteIcon/>
-                        </IconButton>
-                    </Tooltip>
-                ) : (
-                    <Tooltip title="New Binding">
-                        <IconButton onClick={onNew}>
-                            <AddIcon/>
-                        </IconButton>
-                    </Tooltip>
-                )
-            }
+            { selectNum > 0 ? (
+                <Tooltip title="Delete">
+                    <IconButton onClick={onDelete}>
+                        <DeleteIcon/>
+                    </IconButton>
+                </Tooltip>
+            ) : (
+                <Tooltip title="New Binding">
+                    <IconButton onClick={onNew}>
+                        <AddIcon/>
+                    </IconButton>
+                </Tooltip>
+            )}
         </Toolbar>
     );
 }
@@ -112,11 +99,11 @@ function BindingTableHead(props) {
                     />
                 </TableCell>
                 { columns.map(column => (
-                    <TableCell key={column.key}>
+                    <TableCell key={column}>
                         <Typography
                             variant="subtitle1"
                         >
-                            {column.name}
+                            {column}
                         </Typography>
                     </TableCell>
                 ))}
@@ -164,9 +151,24 @@ function RecordHotKeyField(props) {
     }
 
     function keyListToString(keyList) {
+        let keyReplace = {
+            alt: "⌥",
+            meta: "⌘",
+            ctrl: "⌃",
+            shift: "⇧",
+            enter: "⏎",
+            backspace: "⌫",
+            escape: "⎋",
+            tab: "⇥",
+            space: "␣"
+        };
         let newKeys = [];
         for (let i = 0; i < keyList.length; i++) {
-            newKeys.push(keyList[i].charAt(0).toUpperCase() + keyList[i].slice(1));
+            if (keyReplace.hasOwnProperty(keyList[i])) {
+                newKeys.push(keyReplace[keyList[i]]);
+            } else {
+                newKeys.push(keyList[i].toUpperCase());
+            }
         }
         return newKeys.join(' + ');
     }
@@ -205,7 +207,8 @@ function BindingTableRow(props) {
             id: rowData.id,
             key: rowData.key,
             b_type: event.target.value,
-            value: rowData.value
+            value: rowData.value,
+            enabled: rowData.enabled,
         }
         onRowDataChange(newRow);
         onSave(newRow);
@@ -216,7 +219,8 @@ function BindingTableRow(props) {
             id: rowData.id,
             key: Array.from(keys),
             b_type: rowData.b_type,
-            value: rowData.value
+            value: rowData.value,
+            enabled: rowData.enabled,
         };
         onRowDataChange(newRow);
         onSave(newRow);
@@ -227,8 +231,21 @@ function BindingTableRow(props) {
             id: rowData.id,
             key: rowData.key,
             b_type: rowData.b_type,
-            value: event.target.value
+            value: event.target.value,
+            enabled: rowData.enabled,
         });
+    }
+
+    function handleEnableStatusChange(event) {
+        let newRow = {
+            id: rowData.id,
+            key: rowData.key,
+            b_type: rowData.b_type,
+            value: rowData.value,
+            enabled: event.target.checked,
+        };
+        onRowDataChange(newRow);
+        onSave(newRow);
     }
 
     return (
@@ -276,6 +293,10 @@ function BindingTableRow(props) {
                     }}
                 />
             </TableCell>
+
+            <TableCell>
+                <Switch onChange={handleEnableStatusChange} checked={rowData.enabled}/>
+            </TableCell>
         </TableRow>
     );
 }
@@ -290,12 +311,14 @@ export default function BindingTable() {
     function activateBindings(bindings) {
         unregisterAll().then(() => {
             for (let i = 0; i < bindings.length; i += 1) {
-                register(
-                    bindings[i].key.join('+'),
-                    () => {
-                        invoke(Commands.openKey, {b: bindings[i]}).then(() => {});
-                    }
-                ).then(() => {});
+                if (bindings[i].enabled) {
+                    register(
+                        bindings[i].key.join('+'),
+                        () => {
+                            invoke(Commands.openKey, {b: bindings[i]}).then(() => {});
+                        }
+                    ).then(() => {});
+                }
             }
         });
         activated = true;

@@ -3,7 +3,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 use lazy_static::lazy_static;
 
-use crate::{config::get_config_dir, constants::BINDING_FILE_NAME};
+use crate::{config::{bool_default_true, get_config_dir}, constants::BINDING_FILE_NAME};
 
 lazy_static! {
     pub static ref BINDINGS: Mutex<Bindings> = Mutex::new(Bindings::new());
@@ -28,7 +28,9 @@ pub struct Binding {
     pub key: Vec<String>,
     #[serde(default)]
     pub b_type: BType,
-    pub value: String
+    pub value: String,
+    #[serde(default = "bool_default_true")]
+    pub enabled: bool
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

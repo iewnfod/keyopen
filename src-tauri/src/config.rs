@@ -20,3 +20,6 @@ pub fn get_config_dir() -> PathBuf {
 
     config_path
 }
+
+pub fn bool_default_true() -> bool { true }
+pub fn bool_default_false() -> bool { false }

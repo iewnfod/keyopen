@@ -3,7 +3,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 use lazy_static::lazy_static;
 
-use crate::{config::get_config_dir, constants::SETTING_FILE_NAME};
+use crate::{config::{bool_default_false, get_config_dir}, constants::SETTING_FILE_NAME};
 
 lazy_static! {
     pub static ref SETTINGS: Mutex<Settings> = Mutex::new(Settings::new());
@@ -17,12 +17,9 @@ pub struct Settings {
     #[serde(default = "bool_default_false")]
 	pub start_at_login: bool,
 
-    #[serde(default = "bool_default_true")]
+    #[serde(default = "bool_default_false")]
 	pub hidden_mode: bool
 }
-
-fn bool_default_true() -> bool { true }
-fn bool_default_false() -> bool { false }
 
 impl Default for Settings {
 	fn default() -> Self {
