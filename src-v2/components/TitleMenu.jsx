@@ -47,7 +47,7 @@ const IconMenu = () => {
 
 export default function TitleMenu() {
     return (
-        <Box sx={{ flexGrow: 1 }}>
+        <Box data-tauri-drag-region sx={{ flexGrow: 1 }}>
             <AppBar position="static">
                 <Toolbar variant="dense" sx={{ flexDirection: "row-reverse", gap: 1 }}>
                     <IconMenu/>

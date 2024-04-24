@@ -12,6 +12,8 @@ pub const APP_ID: &str = "com.iewnfod.keyopen";
 pub const APP_NAME: &str = "KeyOpen";
 pub const CONFIG_NAME: &str = "keyopen_config.json";
 
+pub const BINDING_FILE_NAME: &str = "bindings.json";
+
 lazy_static! {
     pub static ref CONFIG_PATH: Mutex<String> = Mutex::new(String::new());
     pub static ref BINDING: Mutex<HashMap<String, String>> = Mutex::new(HashMap::new());
