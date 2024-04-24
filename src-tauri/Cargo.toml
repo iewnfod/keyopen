@@ -19,7 +19,7 @@ swift-bridge-build = "0.1.53"
 tauri-build = { version = "1.4", features = [] }
 
 [dependencies]
-tauri = { version = "1.4", features = [
+tauri = { version = "1.4", features = [ "fs-all",
     "window-all",
     "system-tray",
     "dialog-all",

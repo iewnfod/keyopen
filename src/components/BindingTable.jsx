@@ -17,6 +17,8 @@ import {useRecordHotkeys} from "react-hotkeys-hook";
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import Commands from "../commands.js";
 import {register, unregisterAll} from "@tauri-apps/api/globalShortcut";
+import {exists} from "@tauri-apps/api/fs";
+import {open} from "@tauri-apps/api/dialog";
 
 const columns = [
     'Key', 'Type', 'Value', 'Enabled'
@@ -154,6 +156,7 @@ function RecordHotKeyField(props) {
         let keyReplace = {
             alt: "⌥",
             meta: "⌘",
+            command: "⌘",
             ctrl: "⌃",
             shift: "⇧",
             enter: "⏎",
@@ -179,28 +182,25 @@ function RecordHotKeyField(props) {
                 variant="outlined"
                 value={keyListToString(isRecording ? Array.from(keys) : currentHotKey)}
                 size="small"
+                onBlur={stopRecordHotKey}
+                onDoubleClick={startRecordHotKey}
                 inputProps={{
                     readOnly: true,
                 }}
+                label="Double Click to Record"
                 sx={{ mr: 1 }}
             />
-            {
-                isRecording ? (
-                    <IconButton onClick={stopRecordHotKey}>
-                        <StopCircleIcon/>
-                    </IconButton>
-                ) : (
-                    <IconButton onClick={startRecordHotKey}>
-                        <EditIcon/>
-                    </IconButton>
-                )
-            }
         </Box>
     );
 }
 
 function BindingTableRow(props) {
     const { rowData, isSelected, onSelectClick, onRowDataChange, onSave } = props;
+    const [pathExist, setPathExist] = React.useState(true);
+
+    exists(rowData.value).then((r) => {
+        setPathExist(r);
+    });
 
     function handleTypeChange(event) {
         let newRow = {
@@ -234,6 +234,9 @@ function BindingTableRow(props) {
             value: event.target.value,
             enabled: rowData.enabled,
         });
+        exists(rowData.value).then((r) => {
+            setPathExist(r);
+        });
     }
 
     function handleEnableStatusChange(event) {
@@ -246,6 +249,12 @@ function BindingTableRow(props) {
         };
         onRowDataChange(newRow);
         onSave(newRow);
+    }
+
+    function handleValueDoubleClick() {
+        open().then((r) => {
+            handleValueChange({target: {value: r}});
+        });
     }
 
     return (
@@ -282,16 +291,36 @@ function BindingTableRow(props) {
             </TableCell>
 
             <TableCell sx={{flexGrow: 1}}>
-                <TextField
-                    variant="outlined"
-                    size="small"
-                    value={rowData.value}
-                    onChange={handleValueChange}
-                    onBlur={onSave}
-                    sx={{
-                        width: '100%'
-                    }}
-                />
+                { rowData.b_type === 'Path' ? (
+                    <TextField
+                        error={!pathExist && rowData.value !== ""}
+                        variant="outlined"
+                        size="small"
+                        value={rowData.value}
+                        onChange={handleValueChange}
+                        onDoubleClick={rowData.b_type === 'Path' ? handleValueDoubleClick : () => {}}
+                        onBlur={onSave}
+                        label="Double Click to Select or Click to Edit"
+                        sx={{width: '100%'}}
+                    />
+                ) : rowData.b_type === 'Shell' ? (
+                    <TextField
+                        variant="outlined"
+                        size="small"
+                        value={rowData.value}
+                        onChange={handleValueChange}
+                        onBlur={onSave}
+                        sx={{width: '100%'}}
+                    />
+                ) : rowData.b_type === 'Map' ? (
+                    <TextField
+                        disabled
+                        variant="outlined"
+                        placeholder="Not Supported"
+                        sx={{width: '100%'}}
+                        size="small"
+                    />
+                ) : <Box></Box>}
             </TableCell>
 
             <TableCell>
@@ -312,6 +341,10 @@ export default function BindingTable() {
         unregisterAll().then(() => {
             for (let i = 0; i < bindings.length; i += 1) {
                 if (bindings[i].enabled) {
+                    if (bindings[i].key.includes('meta')) {
+                        bindings[i].key[bindings[i].key.indexOf('meta')] = 'command';
+                    }
+
                     register(
                         bindings[i].key.join('+'),
                         () => {
@@ -380,7 +413,7 @@ export default function BindingTable() {
     }
 
     function handleNew() {
-        let newRows = [{id: getUuid(), key: [], b_type: "Path", value: ""}];
+        let newRows = [{id: getUuid(), key: [], b_type: "Path", value: "", enabled: true}];
         for (let i = 0; i < rows.length; i++) {
             newRows.push(rows[i]);
         }
