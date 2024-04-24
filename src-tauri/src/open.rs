@@ -56,11 +56,10 @@ fn sub_open(target_path: &String) {
 
 	let p = Path::new(target_path);
 
-	let extension = p
-		.extension()
-		.unwrap()
-		.to_str()
-		.unwrap();
+	let extension = match p.extension() {
+		Some(e) => e.to_str().unwrap(),
+		None => ""
+	};
 
 	if extension == "app" {
 		let app_name = p.file_stem().unwrap().to_str().unwrap();

@@ -11,9 +11,12 @@ mod binding;
 mod config;
 mod constants;
 mod open;
+mod setting;
 
 use crate::binding::{get_bindings, set_bindings};
 use crate::open::open_key;
+use crate::setting::{get_settings, set_settings};
+
 
 #[cfg(target_os = "macos")]
 fn build_app<T>(builder: Builder<T>) -> App<T>
@@ -103,15 +106,18 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             get_bindings,
             set_bindings,
-            open_key
+            open_key,
+            get_settings,
+            set_settings
         ]);
 
     let app = build_app(builder);
 
     // 如果启动显示窗口，就显示
-    // if if_bool_config_true("show_when_open", true) {
-    //     app.get_window("main").unwrap().show().unwrap();
-    // }
+    if !get_settings().hidden_mode {
+        println!("show windows");
+        app.get_window("main").unwrap().show().unwrap();
+    }
 
     app.run(main_loop);
 }

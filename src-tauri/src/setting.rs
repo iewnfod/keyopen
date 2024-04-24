@@ -1,0 +1,84 @@
+use std::{fs::File, io::Write, path::PathBuf, sync::Mutex};
+use log::debug;
+use serde::{Deserialize, Serialize};
+use lazy_static::lazy_static;
+
+use crate::{config::get_config_dir, constants::SETTING_FILE_NAME};
+
+lazy_static! {
+    pub static ref SETTINGS: Mutex<Settings> = Mutex::new(Settings::new());
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Settings {
+    #[serde(default = "bool_default_false")]
+	pub dark_mode: bool,
+
+    #[serde(default = "bool_default_false")]
+	pub start_at_login: bool,
+
+    #[serde(default = "bool_default_true")]
+	pub hidden_mode: bool
+}
+
+fn bool_default_true() -> bool { true }
+fn bool_default_false() -> bool { false }
+
+impl Default for Settings {
+	fn default() -> Self {
+		Self {
+			dark_mode: false,
+			start_at_login: false,
+			hidden_mode: false
+		}
+	}
+}
+
+impl Settings {
+	pub fn new() -> Self {
+		match Self::from_save() {
+			Some(s) => s,
+			None => Self::default()
+		}
+	}
+
+	fn get_save_path() -> PathBuf {
+        let setting_path = get_config_dir().join(SETTING_FILE_NAME);
+        if !setting_path.exists() {
+            File::create(&setting_path).unwrap();
+        }
+        setting_path
+    }
+
+	pub fn from_save() -> Option<Self> {
+		let save_path = Self::get_save_path();
+		let save_file = File::open(save_path).unwrap();
+		match serde_json::from_reader(save_file) {
+			Ok(s) => Some(s),
+			Err(_) => None
+		}
+	}
+
+	pub fn save(&self) {
+		let s = serde_json::to_string_pretty(self).unwrap();
+        let mut file = File::create(Self::get_save_path()).unwrap();
+        file.write_all(s.as_bytes()).unwrap();
+	}
+
+	pub fn into_self(&self) -> Self {
+		self.clone()
+	}
+}
+
+#[tauri::command]
+pub fn get_settings() -> Settings {
+	SETTINGS.lock().unwrap().into_self()
+}
+
+#[tauri::command]
+pub fn set_settings(new_settings: Settings) {
+    debug!("{:?}", &new_settings);
+    let mut settings = SETTINGS.lock().unwrap();
+    *settings = new_settings;
+	settings.save();
+}

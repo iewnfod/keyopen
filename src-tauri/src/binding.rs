@@ -6,7 +6,7 @@ use lazy_static::lazy_static;
 use crate::{config::get_config_dir, constants::BINDING_FILE_NAME};
 
 lazy_static! {
-    pub static ref BINDINGS: Mutex<Bindings> = Mutex::new(Bindings::default());
+    pub static ref BINDINGS: Mutex<Bindings> = Mutex::new(Bindings::new());
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -16,17 +16,19 @@ pub enum BType {
     Map
 }
 
+impl Default for BType {
+    fn default() -> Self {
+        Self::Path
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Binding {
     id: String,
     pub key: Vec<String>,
-    #[serde(default = "default_b_type")]
+    #[serde(default)]
     pub b_type: BType,
     pub value: String
-}
-
-fn default_b_type() -> BType {
-    BType::Path
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -36,7 +38,10 @@ pub struct Bindings {
 
 impl Bindings {
     pub fn new() -> Self {
-        Self { b: vec![] }
+        match Self::from_save() {
+            Some(b) => b,
+            None => Self::default()
+        }
     }
 
     fn get_save_path() -> PathBuf {
@@ -47,13 +52,12 @@ impl Bindings {
         binding_path
     }
 
-    pub fn from_save() -> Result<Self, ()> {
+    pub fn from_save() -> Option<Self> {
         let binding_path = Self::get_save_path();
-
         let binding_file = File::open(binding_path).unwrap();
         match serde_json::from_reader(binding_file) {
-            Ok(b) => Ok(b),
-            Err(_) => Err(())
+            Ok(b) => Some(b),
+            Err(_) => None
         }
     }
 
@@ -72,10 +76,7 @@ impl Bindings {
 
 impl Default for Bindings {
     fn default() -> Self {
-        match Self::from_save() {
-            Ok(b) => b,
-            Err(_) => Self::new()
-        }
+        Self { b: vec![] }
     }
 }
 
