@@ -253,7 +253,9 @@ function BindingTableRow(props) {
 
     function handleValueDoubleClick() {
         open().then((r) => {
-            handleValueChange({target: {value: r}});
+            if (r) {
+                handleValueChange({target: {value: r}});
+            }
         });
     }
 
