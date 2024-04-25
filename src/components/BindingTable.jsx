@@ -141,39 +141,59 @@ function RecordHotKeyField(props) {
     const { currentHotKey, onHotKeyChange } = props;
     const [keys, { start, stop, isRecording }] = useRecordHotkeys();
 
+    const modKeys = {
+        alt: "⌥",
+        meta: "⌘",
+        command: "⌘",
+        ctrl: "⌃",
+        shift: "⇧",
+        enter: "⏎",
+        backspace: "⌫",
+        escape: "⎋",
+        tab: "⇥",
+        space: "␣"
+    };
+
+    let alphabet = [];
+    for (let i = 0; i < 26; i ++) {
+        alphabet.push(String.fromCharCode(97 + i));
+    }
+
     function startRecordHotKey() {
         start();
     }
 
     function stopRecordHotKey() {
         stop();
-        if (keys.size) {
+        if (keys.size && validKey()) {
             onHotKeyChange(keys);
         }
     }
 
     function keyListToString(keyList) {
-        let keyReplace = {
-            alt: "⌥",
-            meta: "⌘",
-            command: "⌘",
-            ctrl: "⌃",
-            shift: "⇧",
-            enter: "⏎",
-            backspace: "⌫",
-            escape: "⎋",
-            tab: "⇥",
-            space: "␣"
-        };
         let newKeys = [];
         for (let i = 0; i < keyList.length; i++) {
-            if (keyReplace.hasOwnProperty(keyList[i])) {
-                newKeys.push(keyReplace[keyList[i]]);
+            if (modKeys.hasOwnProperty(keyList[i])) {
+                newKeys.push(modKeys[keyList[i]]);
             } else {
                 newKeys.push(keyList[i].toUpperCase());
             }
         }
         return newKeys.join(' + ');
+    }
+
+    function validKey() {
+        let hasModKey = false;
+        let hasCodeKey = false;
+        let keyArray = isRecording ? Array.from(keys) : currentHotKey;
+        for (let i = 0; i < keyArray.length; i++) {
+            if (modKeys.hasOwnProperty(keyArray[i])) {
+                hasModKey = true;
+            } else if (alphabet.includes(keyArray[i])) {
+                hasCodeKey = true;
+            }
+        }
+        return hasModKey && hasCodeKey;
     }
 
     return (
@@ -188,7 +208,8 @@ function RecordHotKeyField(props) {
                     readOnly: true,
                 }}
                 label="Double Click to Record"
-                sx={{ mr: 1 }}
+                sx={{ input: {cursor: 'pointer'} }}
+                error={!validKey()}
             />
         </Box>
     );
@@ -285,7 +306,7 @@ function BindingTableRow(props) {
                 />
             </TableCell>
 
-            <TableCell sx={{width: '20%'}}>
+            <TableCell sx={{width: '15%'}}>
                 <TypeSelect
                     currentType={rowData.b_type}
                     onTypeChange={handleTypeChange}
@@ -312,20 +333,21 @@ function BindingTableRow(props) {
                         value={rowData.value}
                         onChange={handleValueChange}
                         onBlur={onSave}
+                        label="Shell Script to Run"
                         sx={{width: '100%'}}
                     />
                 ) : rowData.b_type === 'Map' ? (
                     <TextField
                         disabled
                         variant="outlined"
-                        placeholder="Not Supported"
+                        value="Not Supported"
                         sx={{width: '100%'}}
                         size="small"
                     />
                 ) : <Box></Box>}
             </TableCell>
 
-            <TableCell>
+            <TableCell sx={{width: '10%'}}>
                 <Switch onChange={handleEnableStatusChange} checked={rowData.enabled}/>
             </TableCell>
         </TableRow>
