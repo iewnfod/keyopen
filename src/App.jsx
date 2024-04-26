@@ -9,21 +9,24 @@ import Commands from "./commands.js";
 
 const rawSetting = await invoke(Commands.getSettings);
 
-class Settings {
+export class Settings {
     dark_mode = false;
     start_at_login = false;
     hidden_mode = true;
+    theme_color = "#5B62BC";
 
-    constructor() {
-        this.dark_mode = rawSetting.dark_mode;
-        this.start_at_login = rawSetting.start_at_login;
-        this.hidden_mode = rawSetting.hidden_mode;
+    loadRaw() {
+        this.dark_mode = rawSetting.dark_mode || this.dark_mode;
+        this.start_at_login = rawSetting.start_at_login || this.start_at_login;
+        this.hidden_mode = rawSetting.hidden_mode || this.hidden_mode;
+        this.theme_color = rawSetting.theme_color || this.theme_color;
+        return this;
     }
 }
 
 export default function App() {
     const [pageNum, setPageNum] = useState(1);
-    const [settings, setSettings] = useState(new Settings());
+    const [settings, setSettings] = useState(new Settings().loadRaw());
 
     function handlePageChange(event) {
         setPageNum(event.target.value);
@@ -45,10 +48,19 @@ export default function App() {
         });
     }
 
+    function handleReset() {
+        let newSetting = new Settings();
+        setSettings(newSetting);
+    }
+
     function CurrentPage() {
         switch (pageNum) {
             case 1: return <MainPage/>;
-            case 2: return <SettingPage settings={settings} onSettingChange={handleSettingChange}/>;
+            case 2: return <SettingPage
+                settings={settings}
+                onSettingChange={handleSettingChange}
+                onReset={handleReset}
+            />;
             case 3: return <ReleasePage/>;
         }
     }
@@ -60,6 +72,9 @@ export default function App() {
                     mode: settings.dark_mode ? "dark" : "light",
                     background: {
                         default: settings.dark_mode ? '#2B2E31' : '#FFF'
+                    },
+                    primary: {
+                        main: settings.theme_color
                     }
                 }
             })

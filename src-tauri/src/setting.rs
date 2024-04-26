@@ -18,15 +18,21 @@ pub struct Settings {
 	pub start_at_login: bool,
 
     #[serde(default = "bool_default_false")]
-	pub hidden_mode: bool
+	pub hidden_mode: bool,
+
+	#[serde(default = "default_theme_color")]
+	pub theme_color: String
 }
+
+fn default_theme_color() -> String { "#5B62BC".to_string() }
 
 impl Default for Settings {
 	fn default() -> Self {
 		Self {
 			dark_mode: false,
 			start_at_login: false,
-			hidden_mode: false
+			hidden_mode: false,
+			theme_color: default_theme_color()
 		}
 	}
 }
