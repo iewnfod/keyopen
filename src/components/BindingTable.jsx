@@ -26,6 +26,29 @@ const columns = [
 
 let rawRows = await invoke(Commands.getBindings);
 
+const modKeys = {
+    alt: "⌥",
+    meta: "⌘",
+    command: "⌘",
+    ctrl: "⌃",
+    shift: "⇧",
+    enter: "⏎",
+    backspace: "⌫",
+    escape: "⎋",
+    tab: "⇥",
+    space: "␣",
+    up: "↑",
+    down: "↓",
+    left: "←",
+    right: "→",
+    capslock: "⇪",
+    backquote: "`",
+    quote: "'",
+    slash: "/",
+    equal: "=",
+    minus: "-"
+};
+
 function getUuid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         let r = (Math.random() * 16) | 0,
@@ -138,21 +161,8 @@ function TypeSelect(props) {
 }
 
 function RecordHotKeyField(props) {
-    const { currentHotKey, onHotKeyChange } = props;
+    const { currentHotKey, onHotKeyChange, checkValid } = props;
     const [keys, { start, stop, isRecording }] = useRecordHotkeys();
-
-    const modKeys = {
-        alt: "⌥",
-        meta: "⌘",
-        command: "⌘",
-        ctrl: "⌃",
-        shift: "⇧",
-        enter: "⏎",
-        backspace: "⌫",
-        escape: "⎋",
-        tab: "⇥",
-        space: "␣"
-    };
 
     let alphabet = [];
     for (let i = 0; i < 26; i ++) {
@@ -165,14 +175,19 @@ function RecordHotKeyField(props) {
 
     function stopRecordHotKey() {
         stop();
-        if (keys.size && validKey()) {
-            onHotKeyChange(keys);
+        if (keys.size) {
+            if (!checkValid || validKey()) {
+                onHotKeyChange(Array.from(keys).filter((v) => v !== 'unidentified'));
+            }
         }
     }
 
     function keyListToString(keyList) {
         let newKeys = [];
         for (let i = 0; i < keyList.length; i++) {
+            if (keyList[i] === 'unidentified') {
+                continue;
+            }
             if (modKeys.hasOwnProperty(keyList[i])) {
                 newKeys.push(modKeys[keyList[i]]);
             } else {
@@ -185,15 +200,18 @@ function RecordHotKeyField(props) {
     function validKey() {
         let hasModKey = false;
         let hasCodeKey = false;
+        let hasFKey = false;
         let keyArray = isRecording ? Array.from(keys) : currentHotKey;
         for (let i = 0; i < keyArray.length; i++) {
             if (modKeys.hasOwnProperty(keyArray[i])) {
                 hasModKey = true;
             } else if (alphabet.includes(keyArray[i])) {
                 hasCodeKey = true;
+            } else if (keyArray[i].length >= 2 && keyArray[i][0] === 'f') {
+                hasFKey = true;
             }
         }
-        return hasModKey && hasCodeKey;
+        return (hasModKey && hasCodeKey) || hasFKey;
     }
 
     return (
@@ -208,8 +226,8 @@ function RecordHotKeyField(props) {
                     readOnly: true,
                 }}
                 label="Double Click to Record"
-                sx={{ input: {cursor: 'pointer'} }}
-                error={!validKey()}
+                sx={{ input: {cursor: 'pointer'}, flexGrow: 1 }}
+                error={!validKey() && checkValid}
             />
         </Box>
     );
@@ -238,7 +256,7 @@ function BindingTableRow(props) {
     function handleHotKeyChange(keys) {
         let newRow = {
             id: rowData.id,
-            key: Array.from(keys),
+            key: keys,
             b_type: rowData.b_type,
             value: rowData.value,
             enabled: rowData.enabled,
@@ -247,17 +265,20 @@ function BindingTableRow(props) {
         onSave(newRow);
     }
 
-    function handleValueChange(event) {
+    function handleValueChange(newValue) {
+        console.log(newValue);
         onRowDataChange({
             id: rowData.id,
             key: rowData.key,
             b_type: rowData.b_type,
-            value: event.target.value,
+            value: newValue,
             enabled: rowData.enabled,
         });
-        exists(rowData.value).then((r) => {
-            setPathExist(r);
-        });
+        if (rowData.b_type === "Path") {
+            exists(rowData.value).then((r) => {
+                setPathExist(r);
+            });
+        }
     }
 
     function handleEnableStatusChange(event) {
@@ -303,6 +324,7 @@ function BindingTableRow(props) {
                 <RecordHotKeyField
                     currentHotKey={rowData.key}
                     onHotKeyChange={handleHotKeyChange}
+                    checkValid={rowData.b_type !== 'Map'}
                 />
             </TableCell>
 
@@ -320,7 +342,7 @@ function BindingTableRow(props) {
                         variant="outlined"
                         size="small"
                         value={rowData.value}
-                        onChange={handleValueChange}
+                        onChange={(event) => handleValueChange(event.target.value)}
                         onDoubleClick={rowData.b_type === 'Path' ? handleValueDoubleClick : () => {}}
                         onBlur={onSave}
                         label="Double Click to Select or Click to Edit"
@@ -331,18 +353,19 @@ function BindingTableRow(props) {
                         variant="outlined"
                         size="small"
                         value={rowData.value}
-                        onChange={handleValueChange}
+                        onChange={(event) => handleValueChange(event.target.value)}
                         onBlur={onSave}
                         label="Shell Script to Run"
                         sx={{width: '100%'}}
                     />
                 ) : rowData.b_type === 'Map' ? (
-                    <TextField
-                        disabled
-                        variant="outlined"
-                        value="Not Supported"
-                        sx={{width: '100%'}}
-                        size="small"
+                    <RecordHotKeyField
+                        currentHotKey={rowData.value.split('+')}
+                        onHotKeyChange={(keys) => {
+                            handleValueChange(keys.join('+'));
+                            onSave(rowData);
+                        }}
+                        checkValid={false}
                     />
                 ) : <Box></Box>}
             </TableCell>

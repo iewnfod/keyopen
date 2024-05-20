@@ -1,8 +1,8 @@
-use std::{fs::{create_dir_all, File}, io::Write, path::PathBuf, process::Command, str::FromStr};
+use std::{fs::{create_dir_all, File}, io::Write, path::PathBuf, process::Command, str::FromStr, thread, time};
+use enigo::{Enigo, Key, Keyboard};
 use log::debug;
-use tauri::command;
 
-use crate::{binding::{BType, Binding}, constants::APP_ID};
+use crate::{binding::{BType, Binding}, constants::{APP_ID, MOD_KEY_MAP}, setting::get_settings};
 
 fn sub_sub_open(target_path: &String) {
 	use crate::constants::OPEN;
@@ -99,6 +99,52 @@ fn shell_open(value: &String) {
 	command.spawn().unwrap();
 }
 
+fn map_open(value: &String) {
+	thread::sleep(
+		time::Duration::from_millis(
+			get_settings().map_delay_time
+		)
+	);
+
+	let mut keys: Vec<&str> = value.split("+").collect();
+
+	for i in 0..keys.len() {
+		keys[i] = keys[i].trim();
+	}
+
+	debug!("{:?}", &keys);
+
+	let mut enigo = Enigo::new(&enigo::Settings::default()).unwrap();
+
+	let mut unicode_keys = vec![];
+
+	for key in keys.iter() {
+		match MOD_KEY_MAP.get(key) {
+			Some(k) => enigo.key(*k, enigo::Direction::Press),
+			None => {
+				unicode_keys.push(
+					Key::Unicode(*key.chars().collect::<Vec<char>>().first().unwrap())
+				);
+				Ok(())
+			}
+		}.unwrap();
+	}
+
+	for key in unicode_keys {
+		debug!("{:?}", key);
+		enigo.key(key, enigo::Direction::Click).unwrap();
+	}
+
+	keys.reverse();
+
+	for key in keys.iter() {
+		match MOD_KEY_MAP.get(key) {
+			Some(k) => enigo.key(*k, enigo::Direction::Release),
+			None => Ok(())
+		}.unwrap();
+	}
+}
+
 #[tauri::command]
 pub fn open_key(b: Binding) {
 	if b.value.is_empty() {
@@ -113,7 +159,7 @@ pub fn open_key(b: Binding) {
 			shell_open(&b.value);
 		},
 		BType::Map => {
-			debug!("Not Supported");
+			map_open(&b.value);
 		}
 	}
 }

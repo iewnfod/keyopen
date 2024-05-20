@@ -1,9 +1,9 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import TitleMenu from "./components/TitleMenu.jsx";
 import MainPage from "./components/MainPage.jsx";
 import SettingPage from "./components/SettingPage.jsx";
 import ReleasePage from "./components/ReleasePage.jsx";
-import {Box, createTheme, CssBaseline, ThemeProvider} from "@mui/material";
+import {Box, createTheme, CssBaseline, ThemeProvider, useTheme} from "@mui/material";
 import {invoke} from "@tauri-apps/api";
 import Commands from "./commands.js";
 
@@ -14,12 +14,12 @@ export class Settings {
     start_at_login = false;
     hidden_mode = true;
     theme_color = "#5B62BC";
+    map_delay_time = 100;
 
     loadRaw() {
-        this.dark_mode = rawSetting.dark_mode || this.dark_mode;
-        this.start_at_login = rawSetting.start_at_login || this.start_at_login;
-        this.hidden_mode = rawSetting.hidden_mode || this.hidden_mode;
-        this.theme_color = rawSetting.theme_color || this.theme_color;
+        Object.keys(rawSetting).map((key) => {
+            this[key] = rawSetting[key];
+        });
         return this;
     }
 }
@@ -27,6 +27,26 @@ export class Settings {
 export default function App() {
     const [pageNum, setPageNum] = useState(1);
     const [settings, setSettings] = useState(new Settings().loadRaw());
+
+    let theme = defaultTheme();
+
+    useEffect(() => {
+        theme = defaultTheme();
+    }, [settings]);
+
+    function defaultTheme() {
+        return createTheme({
+            palette: {
+                mode: settings.dark_mode ? "dark" : "light",
+                background: {
+                    default: settings.dark_mode ? '#2B2E31' : '#FFF'
+                },
+                primary: {
+                    main: settings.theme_color
+                }
+            }
+        });
+    }
 
     function handlePageChange(event) {
         setPageNum(event.target.value);
@@ -66,22 +86,16 @@ export default function App() {
     }
 
     return (
-        <ThemeProvider theme={
-            createTheme({
-                palette: {
-                    mode: settings.dark_mode ? "dark" : "light",
-                    background: {
-                        default: settings.dark_mode ? '#2B2E31' : '#FFF'
-                    },
-                    primary: {
-                        main: settings.theme_color
-                    }
-                }
-            })
-        }>
+        <ThemeProvider theme={theme}>
             <CssBaseline/>
-            <TitleMenu data-tauri-drag-region onPageChange={handlePageChange}/>
-            <CurrentPage/>
+
+            <Box>
+                <TitleMenu onPageChange={handlePageChange} occupyPos={false}/>
+
+                <Box mt={7}>
+                    <CurrentPage/>
+                </Box>
+            </Box>
         </ThemeProvider>
     );
 }

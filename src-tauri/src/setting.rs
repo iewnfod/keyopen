@@ -21,10 +21,15 @@ pub struct Settings {
 	pub hidden_mode: bool,
 
 	#[serde(default = "default_theme_color")]
-	pub theme_color: String
+	pub theme_color: String,
+
+	// unit: ms
+	#[serde(default = "default_map_delay_time")]
+	pub map_delay_time: u64,
 }
 
 fn default_theme_color() -> String { "#5B62BC".to_string() }
+fn default_map_delay_time() -> u64 { 100 }
 
 impl Default for Settings {
 	fn default() -> Self {
@@ -32,7 +37,8 @@ impl Default for Settings {
 			dark_mode: false,
 			start_at_login: false,
 			hidden_mode: false,
-			theme_color: default_theme_color()
+			theme_color: default_theme_color(),
+			map_delay_time: default_map_delay_time(),
 		}
 	}
 }

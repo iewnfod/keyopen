@@ -1,10 +1,11 @@
-import {Box, Button, Divider, FormControl, FormControlLabel, FormGroup, FormLabel, IconButton, TextField, Toolbar} from "@mui/material";
+import {Box, Button, Divider, FormControl, FormControlLabel, FormGroup, FormLabel, IconButton, Input, TextField, Toolbar} from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import Typography from "@mui/material/Typography";
 import SettingsIcon from '@mui/icons-material/Settings';
-import TvIcon from '@mui/icons-material/Tv';
 import LoopIcon from '@mui/icons-material/Loop';
 import {HexColorPicker} from "react-colorful";
+import DisplaySettingsIcon from '@mui/icons-material/DisplaySettings';
+import TuneIcon from '@mui/icons-material/Tune';
 import React from "react";
 
 function isValidColor(color) {
@@ -32,9 +33,14 @@ export default function SettingPage(props) {
     const {settings, onSettingChange, onReset} = props;
 
     const [themeColor, setThemeColor] = React.useState(settings.theme_color);
+    const [mapDelayTime, setMapDelayTime] = React.useState(settings.map_delay_time);
 
     function handleToggleSetting(event) {
         onSettingChange(event.target.name, event.target.checked);
+    }
+
+    function handleNumberInputSetting(event) {
+        onSettingChange(event.target.name, event.target.valueAsNumber);
     }
 
     function saveThemeColor() {
@@ -49,7 +55,7 @@ export default function SettingPage(props) {
         <Box>
             <Toolbar sx={{mt: 2, ml: 1}}>
                 <Typography
-                    variant="h6"
+                    variant="h5"
                     sx={{display: "flex", justifyContent: "left", alignItems: "center", gap: 1, flex: '1 1 100%'}}
                     component="div"
                     color="inherit"
@@ -64,7 +70,7 @@ export default function SettingPage(props) {
                 </Button>
             </Toolbar>
 
-            <Box sx={{pl: 4, pr: 5}}>
+            <Box sx={{pl: 4, pr: 5, mb: 5}}>
                 <FormGroup sx={{mt: 2}}>
                     <FormControlLabel
                         control={<Checkbox checked={settings.start_at_login}/>}
@@ -83,7 +89,7 @@ export default function SettingPage(props) {
                 <Divider sx={{mt: 4, mb: 4}}/>
 
                 <Typography variant="h5" sx={{display: "flex", justifyContent: "left", alignItems: "center", gap: 1}}>
-                    <TvIcon/>
+                    <DisplaySettingsIcon/>
                     Display
                 </Typography>
 
@@ -110,6 +116,34 @@ export default function SettingPage(props) {
                         name="dark_mode"
                         onChange={handleToggleSetting}
                     />
+                </FormGroup>
+
+                <Divider sx={{mt: 4, mb: 4}}/>
+
+                <Typography variant="h5" sx={{display: "flex", justifyContent: "left", alignItems: "center", gap: 1}}>
+                    <TuneIcon/>
+                    Advanced
+                </Typography>
+
+                <FormGroup sx={{mt: 2}}>
+                    <Box sx={{mb: 1, display: "flex", justifyContent: "left", alignItems: "center", gap: 2}}>
+                        <Typography>Map Key Delay Time (ms)</Typography>
+                        <TextField
+                            size="small"
+                            placeholder={settings.map_delay_time}
+                            type="number"
+                            value={mapDelayTime}
+                            name="map_delay_time"
+                            onChange={
+                                (event) => {
+                                    if (!isNaN(event.target.valueAsNumber) && event.target.valueAsNumber >= 0) {
+                                        setMapDelayTime(Math.trunc(event.target.valueAsNumber));
+                                    }
+                                }
+                            }
+                            onBlur={handleNumberInputSetting}
+                        />
+                    </Box>
                 </FormGroup>
             </Box>
         </Box>

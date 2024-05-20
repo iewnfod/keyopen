@@ -34,6 +34,8 @@ env_logger = "0.11.2"
 log = "0.4.21"
 home = "0.5.9"
 macos-accessibility-client = "0.0.1"
+enigo = "0.2.0"
+phf = "0.11.2"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

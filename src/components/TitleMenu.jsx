@@ -1,8 +1,6 @@
 import * as React from 'react';
-import {alpha, styled, AppBar, Box, IconButton, Toolbar, Menu, MenuItem} from "@mui/material";
+import {AppBar, Box, IconButton, Toolbar, Menu, MenuItem} from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-import SearchBox from "./SearchBox.jsx";
 
 function IconMenu(props) {
     const {onPageChange} = props;
@@ -58,10 +56,9 @@ export default function TitleMenu(props) {
 
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="static">
-                <Toolbar variant="dense" sx={{ flexDirection: "row-reverse", gap: 1 }}>
+            <AppBar component="nav">
+                <Toolbar data-tauri-drag-region variant="dense" sx={{ flexDirection: "row-reverse", gap: 1 }}>
                     <IconMenu onPageChange={onPageChange}/>
-                    <SearchBox/>
                 </Toolbar>
             </AppBar>
         </Box>
