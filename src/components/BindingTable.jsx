@@ -266,7 +266,6 @@ function BindingTableRow(props) {
     }
 
     function handleValueChange(newValue) {
-        console.log(newValue);
         onRowDataChange({
             id: rowData.id,
             key: rowData.key,
@@ -296,7 +295,8 @@ function BindingTableRow(props) {
     function handleValueDoubleClick() {
         open().then((r) => {
             if (r) {
-                handleValueChange({target: {value: r}});
+                handleValueChange(r);
+                onSave(rowData);
             }
         });
     }
@@ -344,7 +344,7 @@ function BindingTableRow(props) {
                         value={rowData.value}
                         onChange={(event) => handleValueChange(event.target.value)}
                         onDoubleClick={rowData.b_type === 'Path' ? handleValueDoubleClick : () => {}}
-                        onBlur={onSave}
+                        onBlur={() => onSave(rowData)}
                         label="Double Click to Select or Click to Edit"
                         sx={{width: '100%'}}
                     />
@@ -354,7 +354,7 @@ function BindingTableRow(props) {
                         size="small"
                         value={rowData.value}
                         onChange={(event) => handleValueChange(event.target.value)}
-                        onBlur={onSave}
+                        onBlur={() => onSave(rowData)}
                         label="Shell Script to Run"
                         sx={{width: '100%'}}
                     />

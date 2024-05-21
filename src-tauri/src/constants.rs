@@ -9,7 +9,6 @@ pub const OPEN: &str = "explorer";
 pub const OPEN: &str = "open";
 
 pub const APP_BUNDLE_ID: &str = "com.iewnfod.keyopen";
-pub const APP_NAME: &str = "KeyOpen";
 
 pub const BINDING_FILE_NAME: &str = "bindings.json";
 pub const SETTING_FILE_NAME: &str = "settings.json";

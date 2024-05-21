@@ -4,7 +4,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 use lazy_static::lazy_static;
 
-use crate::{config::{bool_default_false, get_config_dir}, constants::{APP_NAME, SETTING_FILE_NAME}};
+use crate::{config::{bool_default_false, get_config_dir}, constants::{APP_BUNDLE_ID, SETTING_FILE_NAME}};
 
 lazy_static! {
     pub static ref SETTINGS: Mutex<Settings> = Mutex::new(Settings::new());
@@ -86,7 +86,7 @@ impl Settings {
 			exe_path = exe_path.read_link().unwrap();
 		}
 		let auto = AutoLaunch::new(
-			APP_NAME,
+			APP_BUNDLE_ID,
 			exe_path.as_os_str().to_str().unwrap(),
 			true,
 			&[""]
