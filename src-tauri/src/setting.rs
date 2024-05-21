@@ -1,9 +1,10 @@
-use std::{fs::File, io::Write, path::PathBuf, sync::Mutex};
+use std::{env::current_exe, fs::File, io::Write, path::PathBuf, sync::Mutex};
+use auto_launch::AutoLaunch;
 use log::debug;
 use serde::{Deserialize, Serialize};
 use lazy_static::lazy_static;
 
-use crate::{config::{bool_default_false, get_config_dir}, constants::SETTING_FILE_NAME};
+use crate::{config::{bool_default_false, get_config_dir}, constants::{APP_NAME, SETTING_FILE_NAME}};
 
 lazy_static! {
     pub static ref SETTINGS: Mutex<Settings> = Mutex::new(Settings::new());
@@ -77,6 +78,25 @@ impl Settings {
 	pub fn into_self(&self) -> Self {
 		self.clone()
 	}
+
+	pub fn apply_new_settings(&self) {
+		// 检查 start at login
+		let mut exe_path = current_exe().unwrap();
+		while exe_path.is_symlink() {
+			exe_path = exe_path.read_link().unwrap();
+		}
+		let auto = AutoLaunch::new(
+			APP_NAME,
+			exe_path.as_os_str().to_str().unwrap(),
+			true,
+			&[""]
+		);
+		if self.start_at_login {
+			auto.enable().unwrap();
+		} else {
+			auto.disable().unwrap();
+		}
+	}
 }
 
 #[tauri::command]
@@ -90,4 +110,5 @@ pub fn set_settings(new_settings: Settings) {
     let mut settings = SETTINGS.lock().unwrap();
     *settings = new_settings;
 	settings.save();
+	settings.apply_new_settings();
 }

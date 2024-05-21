@@ -6,12 +6,12 @@ use crate::constants::*;
 
 pub fn get_config_dir() -> PathBuf {
     let home = home_dir().unwrap();
-    let mut config_path = home.join(".config").join(APP_ID);
+    let mut config_path = home.join(".config").join(APP_BUNDLE_ID);
     if cfg!(target_os = "macos") {
         config_path = home
             .join("Library")
             .join("Application Support")
-            .join(APP_ID);
+            .join(APP_BUNDLE_ID);
     }
 
     if !config_path.exists() {

@@ -8,9 +8,8 @@ pub const OPEN: &str = "explorer";
 #[cfg(target_os = "macos")]
 pub const OPEN: &str = "open";
 
-pub const APP_ID: &str = "com.iewnfod.keyopen";
+pub const APP_BUNDLE_ID: &str = "com.iewnfod.keyopen";
 pub const APP_NAME: &str = "KeyOpen";
-pub const CONFIG_NAME: &str = "keyopen_config.json";
 
 pub const BINDING_FILE_NAME: &str = "bindings.json";
 pub const SETTING_FILE_NAME: &str = "settings.json";

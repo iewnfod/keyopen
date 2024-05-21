@@ -2,7 +2,7 @@ use std::{fs::{create_dir_all, File}, io::Write, path::PathBuf, process::Command
 use enigo::{Enigo, Key, Keyboard};
 use log::debug;
 
-use crate::{binding::{BType, Binding}, constants::{APP_ID, MOD_KEY_MAP}, setting::get_settings};
+use crate::{binding::{BType, Binding}, constants::{APP_BUNDLE_ID, MOD_KEY_MAP}, setting::get_settings};
 
 fn sub_sub_open(target_path: &String) {
 	use crate::constants::OPEN;
@@ -81,7 +81,7 @@ fn sub_open(target_path: &String) {
 }
 
 fn shell_open(value: &String) {
-	let str_temp_path = format!("/tmp/{}/temp_shell.sh", APP_ID);
+	let str_temp_path = format!("/tmp/{}/temp_shell.sh", APP_BUNDLE_ID);
 	let temp_path = PathBuf::from_str(str_temp_path.as_str()).unwrap();
 
 	if !temp_path.parent().unwrap().exists() {
