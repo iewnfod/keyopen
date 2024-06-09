@@ -12,11 +12,12 @@ mod config;
 mod constants;
 mod open;
 mod setting;
+#[cfg(target_os = "macos")]
+mod ffi;
 
 use crate::binding::{get_bindings, set_bindings};
 use crate::open::open_key;
 use crate::setting::{get_settings, set_settings};
-
 
 #[cfg(target_os = "macos")]
 fn build_app<T>(builder: Builder<T>) -> App<T>
@@ -108,7 +109,7 @@ fn main() {
             set_bindings,
             open_key,
             get_settings,
-            set_settings
+            set_settings,
         ]);
 
     let app = build_app(builder);

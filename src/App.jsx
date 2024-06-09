@@ -13,7 +13,7 @@ export class Settings {
     dark_mode = false;
     start_at_login = false;
     hidden_mode = true;
-    theme_color = "#5B62BC";
+    theme_color = "#5A63BF";
     map_delay_time = 100;
 
     loadRaw() {
@@ -42,7 +42,7 @@ export default function App() {
                     default: settings.dark_mode ? '#2B2E31' : '#FFF'
                 },
                 primary: {
-                    main: settings.theme_color
+                    main: settings.theme_color.toLowerCase()
                 }
             }
         });

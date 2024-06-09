@@ -1,6 +1,6 @@
 [package]
 name = "keyopen"
-version = "2.0.0"
+version = "2.0.1"
 description = "An App to Open Files or Other Applications Quickly"
 authors = ["iewnfod"]
 license = ""
@@ -15,11 +15,12 @@ opt-level = 'z'
 strip = true
 
 [build-dependencies]
-swift-bridge-build = "0.1.53"
 tauri-build = { version = "1.4", features = [] }
+swift-rs = { version = "1.0.6", features = ["build"] }
 
 [dependencies]
-tauri = { version = "1.4", features = [ "fs-all",
+tauri = { version = "1.4", features = [
+    "fs-all",
     "window-all",
     "system-tray",
     "dialog-all",
@@ -33,9 +34,9 @@ lazy_static = "1.4.0"
 env_logger = "0.11.2"
 log = "0.4.21"
 home = "0.5.9"
-macos-accessibility-client = "0.0.1"
 enigo = "0.2.0"
 phf = "0.11.2"
+swift-rs = "1.0.6"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

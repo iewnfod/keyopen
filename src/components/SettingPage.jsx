@@ -3,10 +3,12 @@ import Checkbox from "@mui/material/Checkbox";
 import Typography from "@mui/material/Typography";
 import SettingsIcon from '@mui/icons-material/Settings';
 import LoopIcon from '@mui/icons-material/Loop';
-import {HexColorPicker} from "react-colorful";
 import DisplaySettingsIcon from '@mui/icons-material/DisplaySettings';
 import TuneIcon from '@mui/icons-material/Tune';
 import React from "react";
+import {invoke} from "@tauri-apps/api";
+import Commands from "../commands.js";
+import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
 
 function isValidColor(color) {
     let type='';
@@ -35,6 +37,8 @@ export default function SettingPage(props) {
     const [themeColor, setThemeColor] = React.useState(settings.theme_color);
     const [mapDelayTime, setMapDelayTime] = React.useState(settings.map_delay_time);
 
+    const possibleThemeColors = ["#5A63BF", "#7966A7", "#C05D8E", "#B15927", "#9F3E3B", "#5C8D67"];
+
     function handleToggleSetting(event) {
         onSettingChange(event.target.name, event.target.checked);
     }
@@ -43,12 +47,12 @@ export default function SettingPage(props) {
         onSettingChange(event.target.name, event.target.valueAsNumber);
     }
 
-    function saveThemeColor() {
-        if (themeColor) {
-            if (isValidColor(themeColor)) {
-                onSettingChange('theme_color', themeColor);
-            }
-        }
+    function saveThemeColor(color) {
+        onSettingChange('theme_color', color);
+    }
+
+    function handleGetAccessibility() {
+        invoke(Commands.requestAccessibility).then();
     }
 
     return (
@@ -96,19 +100,19 @@ export default function SettingPage(props) {
                 <FormGroup sx={{mt: 2}}>
                     <Box sx={{mb: 1, display: "flex", justifyContent: "left", alignItems: "center", gap: 2}}>
                         <Typography>Theme Color</Typography>
-                        <TextField
-                            size="small"
-                            value={themeColor.toUpperCase()}
-                            sx={{color: themeColor}}
-                            onChange={(e) => setThemeColor(e.target.value)}
-                            onBlur={saveThemeColor}
-                            error={!isValidColor(themeColor)}
-                        />
-                        <HexColorPicker
-                            color={themeColor}
-                            onChange={setThemeColor}
-                            onBlur={saveThemeColor}
-                        />
+                        <Box sx={{display: "flex", justifyContent: "left", alignItems: "center", gap: 0}}>
+                            {
+                                possibleThemeColors.map((color, i) => (
+                                    <Checkbox
+                                        key={i}
+                                        checked={color === themeColor}
+                                        sx={{color: color}}
+                                        onClick={() => saveThemeColor(color)}
+                                        icon={<IndeterminateCheckBoxIcon color={color}/>}
+                                    />
+                                ))
+                            }
+                        </Box>
                     </Box>
                     <FormControlLabel
                         control={<Checkbox checked={settings.dark_mode}/>}
@@ -126,7 +130,7 @@ export default function SettingPage(props) {
                 </Typography>
 
                 <FormGroup sx={{mt: 2}}>
-                    <Box sx={{mb: 1, display: "flex", justifyContent: "left", alignItems: "center", gap: 2}}>
+                    <Box sx={{mb: 2, display: "flex", justifyContent: "left", alignItems: "center", gap: 2}}>
                         <Typography>Map Key Delay Time (ms)</Typography>
                         <TextField
                             size="small"

@@ -5,8 +5,8 @@ use phf::phf_map;
 pub const OPEN: &str = "xdg-open";
 #[cfg(target_os = "windows")]
 pub const OPEN: &str = "explorer";
-#[cfg(target_os = "macos")]
-pub const OPEN: &str = "open";
+// #[cfg(target_os = "macos")]
+// pub const OPEN: &str = "open";
 
 pub const APP_BUNDLE_ID: &str = "com.iewnfod.keyopen";
 
