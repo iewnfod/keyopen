@@ -1,4 +1,4 @@
-import {Box, Button, Card, CardContent, CardMedia, Grid, IconButton, Link, Paper} from "@mui/material";
+import {Box, Button, Grid} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import packageInfo from "../../package.json";
 import logo from "../../src-tauri/icons/icon.svg";
@@ -35,7 +35,7 @@ export default function ReleasePage() {
                     justifyContent: "center",
                     alignItems: "center",
                     p: 2,
-                    gap: 1
+                    gap: 2
                 }}>
                     <img src={logo} alt="" width="200px"/>
                     <Box sx={{
@@ -45,13 +45,13 @@ export default function ReleasePage() {
                         gap: 1
                     }}>
                         <Typography component="div" variant="h5">
-                            Key Open
+                            KeyOpen
                         </Typography>
                         <Typography component="div" variant="body1">
                             v{packageInfo.version}
                         </Typography>
                     </Box>
-                    <Button onClick={openGithub}>
+                    <Button onClick={openGithub} variant="outlined">
                         View More on Github
                     </Button>
                 </Box>

@@ -386,7 +386,7 @@ function BindingTableRow(props) {
                         onChange={(event) => handleValueChange(event.target.value)}
                         onDoubleClick={handleShellDoubleClick}
                         onBlur={() => onSave(rowData)}
-                        label="Double Click to Select or Shell Script to Run"
+                        label="Double Click to Select or Click to Edit"
                         sx={{width: '100%'}}
                     />
                 ) : rowData.b_type === 'Map' ? (

@@ -92,7 +92,7 @@ export default function App() {
             <Box>
                 <TitleMenu onPageChange={handlePageChange} occupyPos={false}/>
 
-                <Box mt={7}>
+                <Box mt={6.25}>
                     <CurrentPage/>
                 </Box>
             </Box>
