@@ -91,10 +91,19 @@ impl Settings {
 			true,
 			&[""]
 		);
+
+		let is_enabled = auto.is_enabled().unwrap_or(false);
+
 		if self.start_at_login {
-			auto.enable().unwrap();
+			if !is_enabled {
+				debug!("enable auto launch");
+				auto.enable().unwrap();
+			}
 		} else {
-			auto.disable().unwrap();
+			if is_enabled {
+				debug!("disable auto launch");
+				auto.disable().unwrap();
+			}
 		}
 	}
 }
