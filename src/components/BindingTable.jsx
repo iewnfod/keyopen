@@ -12,9 +12,7 @@ import TableCell from "@mui/material/TableCell";
 import Checkbox from "@mui/material/Checkbox";
 import {invoke} from "@tauri-apps/api";
 import TableBody from "@mui/material/TableBody";
-import EditIcon from '@mui/icons-material/Edit';
 import {useRecordHotkeys} from "react-hotkeys-hook";
-import StopCircleIcon from '@mui/icons-material/StopCircle';
 import Commands from "../commands.js";
 import {register, unregisterAll} from "@tauri-apps/api/globalShortcut";
 import {exists} from "@tauri-apps/api/fs";
@@ -254,50 +252,72 @@ function BindingTableRow(props) {
     }
 
     function handleHotKeyChange(keys) {
-        let newRow = {
-            id: rowData.id,
-            key: keys,
-            b_type: rowData.b_type,
-            value: rowData.value,
-            enabled: rowData.enabled,
-        };
+        const newRow = JSON.parse(JSON.stringify(rowData));
+        newRow.key = keys;
         onRowDataChange(newRow);
         onSave(newRow);
+        return newRow;
     }
 
     function handleValueChange(newValue) {
-        onRowDataChange({
-            id: rowData.id,
-            key: rowData.key,
-            b_type: rowData.b_type,
-            value: newValue,
-            enabled: rowData.enabled,
-        });
+        const newRow = JSON.parse(JSON.stringify(rowData));
+        newRow.value = newValue;
+        onRowDataChange(newRow);
         if (rowData.b_type === "Path") {
             exists(rowData.value).then((r) => {
                 setPathExist(r);
             });
         }
+        return newRow;
     }
 
     function handleEnableStatusChange(event) {
-        let newRow = {
-            id: rowData.id,
-            key: rowData.key,
-            b_type: rowData.b_type,
-            value: rowData.value,
-            enabled: event.target.checked,
-        };
+        const newRow = JSON.parse(JSON.stringify(rowData));
+        newRow.enabled = event.target.checked;
         onRowDataChange(newRow);
         onSave(newRow);
+        return newRow;
     }
 
     function handleValueDoubleClick() {
-        open().then((r) => {
+        exists(rowData.value).then((r) => {
+            open({defaultPath: r ? rowData.value : undefined}).then((r) => {
+                if (r) {
+                    const newRow = handleValueChange(r);
+                    onSave(newRow);
+                }
+            });
+        });
+    }
+
+    function handleShellDoubleClick() {
+        const defaultOptions = {
+            filters: [
+                {
+                    name: 'Shell file',
+                    extensions: ['sh'],
+                }
+            ]
+        };
+
+        function handleResult(r) {
             if (r) {
-                handleValueChange(r);
-                onSave(rowData);
+                const newRow = handleValueChange(r);
+                onSave(newRow);
             }
+        }
+
+        exists(rowData.value).then((r) => {
+            open({
+                defaultPath: r ? rowData.value : undefined,
+                ...defaultOptions
+            }).then((r) => {
+                handleResult(r);
+            });
+        }).catch(() => {
+            open(defaultOptions).then((r) => {
+                handleResult(r);
+            });
         });
     }
 
@@ -343,7 +363,7 @@ function BindingTableRow(props) {
                         size="small"
                         value={rowData.value}
                         onChange={(event) => handleValueChange(event.target.value)}
-                        onDoubleClick={rowData.b_type === 'Path' ? handleValueDoubleClick : () => {}}
+                        onDoubleClick={handleValueDoubleClick}
                         onBlur={() => onSave(rowData)}
                         label="Double Click to Select or Click to Edit"
                         sx={{width: '100%'}}
@@ -354,8 +374,9 @@ function BindingTableRow(props) {
                         size="small"
                         value={rowData.value}
                         onChange={(event) => handleValueChange(event.target.value)}
+                        onDoubleClick={handleShellDoubleClick}
                         onBlur={() => onSave(rowData)}
-                        label="Shell Script to Run"
+                        label="Double Click to Select or Shell Script to Run"
                         sx={{width: '100%'}}
                     />
                 ) : rowData.b_type === 'Map' ? (

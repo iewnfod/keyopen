@@ -45,20 +45,26 @@ fn sub_open(target_path: &String) {
 }
 
 fn shell_open(value: &String) {
-	let str_temp_path = format!("/tmp/{}/temp_shell.sh", APP_BUNDLE_ID);
-	let temp_path = PathBuf::from_str(str_temp_path.as_str()).unwrap();
+	let mut p = PathBuf::from_str(&value).unwrap();
+	if !p.exists() {
+		let str_temp_path = format!("/tmp/{}/temp_shell.sh", APP_BUNDLE_ID);
+		let temp_path = PathBuf::from_str(str_temp_path.as_str()).unwrap();
 
-	if !temp_path.parent().unwrap().exists() {
-		create_dir_all(temp_path.parent().unwrap()).unwrap();
+		if !temp_path.parent().unwrap().exists() {
+			create_dir_all(temp_path.parent().unwrap()).unwrap();
+		}
+
+		let mut file = File::create(&temp_path).unwrap();
+
+		file.write_all(value.as_bytes()).unwrap();
+
+		p = temp_path.clone();
 	}
 
-	let mut file = File::create(temp_path).unwrap();
-
-	file.write_all(value.as_bytes()).unwrap();
-
 	let mut command = Command::new("/bin/sh");
-	command.arg(&str_temp_path);
-	debug!("{:?}", &command);
+	command.arg(&p);
+
+	debug!("shell: {:?}", &command);
 
 	command.spawn().unwrap();
 }

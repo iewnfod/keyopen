@@ -90,7 +90,7 @@ pub fn get_bindings() -> Vec<Binding> {
 
 #[tauri::command]
 pub fn set_bindings(new_bindings: Vec<Binding>) {
-    debug!("{:?}", &new_bindings);
+    debug!("save bindings: {:?}", &new_bindings);
     let mut bindings = BINDINGS.lock().unwrap();
     bindings.set_bindings(new_bindings);
 }
