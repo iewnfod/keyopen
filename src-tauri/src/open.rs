@@ -4,7 +4,6 @@ use log::debug;
 
 use crate::{binding::{BType, Binding}, constants::{APP_BUNDLE_ID, MOD_KEY_MAP}, setting::get_settings};
 
-#[cfg(not(target_os = "macos"))]
 fn sub_sub_open(target_path: &String) {
 	use crate::constants::OPEN;
 
@@ -29,11 +28,15 @@ fn sub_open(target_path: &String) {
 	#[cfg(target_os = "macos")]
 	{
 		use crate::ffi::open_file;
-		open_file(&target_path);
-	}
 
-	#[cfg(not(target_os = "macos"))]
-	sub_sub_open(target_path);
+		let p = PathBuf::from_str(&target_path).unwrap();
+		if p.exists() {
+			debug!("swift open: {}", &target_path);
+			open_file(&target_path);
+		} else {
+			sub_sub_open(target_path);
+		}
+	}
 }
 
 #[cfg(not(target_os = "macos"))]

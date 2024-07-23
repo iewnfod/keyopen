@@ -12,10 +12,13 @@ public func openFile(p: SRString) {
     let url = URL(fileURLWithPath: path)
     let configure = NSWorkspace.OpenConfiguration.init()
     configure.activates = true
-    
-    if let _ = Bundle.main.url(forResource: path, withExtension: nil) {
+    configure.promptsUserIfNeeded = true
+
+    if path.hasSuffix(".app") {
         NSWorkspace.shared.openApplication(at: url, configuration: configure, completionHandler: nil)
+        print("activate application", path)
     } else {
-        NSWorkspace.shared.open(url, configuration: configure)
+        NSWorkspace.shared.open(url)
+        print("open file", path)
     }
 }
