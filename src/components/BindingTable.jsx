@@ -237,6 +237,8 @@ function BindingTableRow(props) {
 
     exists(rowData.value).then((r) => {
         setPathExist(r);
+    }).catch(() => {
+        setPathExist(false);
     });
 
     function handleTypeChange(event) {
@@ -280,12 +282,20 @@ function BindingTableRow(props) {
     }
 
     function handleValueDoubleClick() {
+        function handleResult(r) {
+            if (r) {
+                const newRow = handleValueChange(r);
+                onSave(newRow);
+            }
+        }
+
         exists(rowData.value).then((r) => {
             open({defaultPath: r ? rowData.value : undefined}).then((r) => {
-                if (r) {
-                    const newRow = handleValueChange(r);
-                    onSave(newRow);
-                }
+                handleResult(r);
+            });
+        }).catch(() => {
+            open().then((r) => {
+                handleResult(r);
             });
         });
     }
