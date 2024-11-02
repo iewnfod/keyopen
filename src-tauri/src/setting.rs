@@ -85,10 +85,19 @@ impl Settings {
 		while exe_path.is_symlink() {
 			exe_path = exe_path.read_link().unwrap();
 		}
+
+		#[cfg(target_os="macos")]
 		let auto = AutoLaunch::new(
 			APP_BUNDLE_ID,
 			exe_path.as_os_str().to_str().unwrap(),
 			true,
+			&[""]
+		);
+
+		#[cfg(not(target_os="macos"))]
+		let auto = AutoLaunch::new(
+			APP_BUNDLE_ID,
+			exe_path.as_os_str().to_str().unwrap(),
 			&[""]
 		);
 

@@ -6,6 +6,7 @@ use tauri::{
     App, AppHandle, Builder, CustomMenuItem, Manager, RunEvent, Runtime, SystemTray,
     SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, WindowEvent,
 };
+use window_shadows::set_shadow;
 
 mod binding;
 mod config;
@@ -39,10 +40,18 @@ where
 }
 
 fn build_tray() -> SystemTray {
+    #[cfg(target_os="macos")]
+    let accelerator = "Command";
+
+    #[cfg(not(target_os="macos"))]
+    let accelerator = "Control";
+
     let tray_menu = SystemTrayMenu::new()
-        .add_item(CustomMenuItem::new("show".to_string(), "Show Window").accelerator("Command+S"))
+        .add_item(CustomMenuItem::new("show".to_string(), "Show Window")
+            .accelerator(format!("{}+S", &accelerator)))
         .add_native_item(SystemTrayMenuItem::Separator)
-        .add_item(CustomMenuItem::new("quit".to_string(), "Quit").accelerator("Command+Q"));
+        .add_item(CustomMenuItem::new("quit".to_string(), "Quit")
+            .accelerator(format!("{}+Q", &accelerator)));
 
     SystemTray::new().with_menu(tray_menu)
 }
@@ -60,7 +69,7 @@ fn tray_event(app_handle: &AppHandle, event: SystemTrayEvent) {
                 #[cfg(target_os = "macos")]
                 tauri::AppHandle::show(&window.app_handle()).unwrap();
 
-                #[cfg(target_os = "linux")]
+                #[cfg(not(target_os = "macos"))]
                 window.show().unwrap();
 
                 window.set_focus().unwrap();
@@ -83,7 +92,7 @@ fn main_loop(app_handle: &AppHandle, event: RunEvent) {
                 )
                 .unwrap();
 
-                #[cfg(target_os = "linux")]
+                #[cfg(not(target_os = "macos"))]
                 app_handle
                     .get_window(label.as_str())
                     .unwrap()
@@ -102,6 +111,12 @@ fn main() {
     env_logger::init();
 
     let builder = tauri::Builder::default()
+        .setup(|app| {
+            if let Some(window) = app.get_window("main") {
+                set_shadow(&window, true).unwrap();
+            }
+            Ok(())
+        })
         .system_tray(build_tray())
         .on_system_tray_event(tray_event)
         .invoke_handler(tauri::generate_handler![
