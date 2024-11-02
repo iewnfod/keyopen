@@ -20,6 +20,8 @@ use crate::binding::{get_bindings, set_bindings};
 use crate::open::open_key;
 use crate::setting::{get_settings, set_settings};
 
+const APP_WINDOW_ID: &str = "main";
+
 #[cfg(target_os = "macos")]
 fn build_app<T>(builder: Builder<T>) -> App<T>
 where
@@ -64,7 +66,7 @@ fn tray_event(app_handle: &AppHandle, event: SystemTrayEvent) {
             }
             "show" => {
                 debug!("Show Request");
-                let window = app_handle.get_window("main").unwrap();
+                let window = app_handle.get_window(APP_WINDOW_ID).unwrap();
 
                 #[cfg(target_os = "macos")]
                 tauri::AppHandle::show(&window.app_handle()).unwrap();
@@ -75,6 +77,14 @@ fn tray_event(app_handle: &AppHandle, event: SystemTrayEvent) {
                 window.set_focus().unwrap();
             }
             _ => {}
+        },
+        #[cfg(target_os="windows")]
+        SystemTrayEvent::LeftClick { .. } => {
+            debug!("Left Click Show Request");
+            if let Some(window) = app_handle.get_window(APP_WINDOW_ID) {
+                window.show().unwrap();
+                window.set_focus().unwrap();
+            }
         },
         _ => {}
     }
@@ -112,7 +122,7 @@ fn main() {
 
     let builder = tauri::Builder::default()
         .setup(|app| {
-            if let Some(window) = app.get_window("main") {
+            if let Some(window) = app.get_window(APP_WINDOW_ID) {
                 set_shadow(&window, true).unwrap();
             }
             Ok(())
@@ -132,7 +142,7 @@ fn main() {
     // 如果启动显示窗口，就显示
     if !get_settings().hidden_mode {
         println!("show windows");
-        app.get_window("main").unwrap().show().unwrap();
+        app.get_window(APP_WINDOW_ID).unwrap().show().unwrap();
     }
 
     app.run(main_loop);
