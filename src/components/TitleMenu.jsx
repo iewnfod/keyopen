@@ -1,6 +1,11 @@
-import React from 'react';
-import {AppBar, Box, IconButton, Toolbar, Menu, MenuItem} from "@mui/material";
+import React, {useEffect, useState} from 'react';
+import {AppBar, Box, IconButton, Toolbar, Menu, MenuItem, Button} from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
+import MinimizeIcon from '@mui/icons-material/Minimize';
+import {appWindow} from "@tauri-apps/api/window";
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
 
 function IconMenu(props) {
     const {onPageChange} = props;
@@ -53,11 +58,50 @@ function IconMenu(props) {
 
 export default function TitleMenu(props) {
     const {onPageChange} = props;
+    const [inFullScreen, setInFullScreen] = useState(false);
+
+    useEffect(() => {
+        appWindow.isFullscreen().then((res) => {
+            setInFullScreen(res);
+        }).catch();
+    }, []);
 
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar component="nav">
-                <Toolbar data-tauri-drag-region variant="dense" sx={{ flexDirection: "row-reverse", gap: 1 }}>
+                <Toolbar data-tauri-drag-region variant="dense" sx={{ gap: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Box sx={{ml: -2}}>
+                        <IconButton
+                            color="inherit"
+                            onClick={() => {
+                                appWindow.hide().then().catch();
+                            }}
+                        >
+                            <CloseIcon/>
+                        </IconButton>
+                        <IconButton
+                            color="inherit"
+                            onClick={() => {
+                                appWindow.setFullscreen(!inFullScreen).then(() => {
+                                    appWindow.isFullscreen().then((res) => {
+                                        setInFullScreen(res);
+                                    }).catch();
+                                }).catch();
+                            }}
+                        >
+                            {
+                                inFullScreen ? <FullscreenExitIcon/> : <FullscreenIcon/>
+                            }
+                        </IconButton>
+                        <IconButton
+                            color="inherit"
+                            onClick={() => {
+                                appWindow.minimize().then().catch();
+                            }}
+                        >
+                            <MinimizeIcon/>
+                        </IconButton>
+                    </Box>
                     <IconMenu onPageChange={onPageChange}/>
                 </Toolbar>
             </AppBar>
