@@ -3,6 +3,11 @@
 		"systemTray": {
 			"iconPath": "icons/tray-dark.png",
 			"iconAsTemplate": true
-		}
+		},
+		"bundle": {
+            "active": true,
+            "identifier": "com.iewnfod.keyopen",
+            "icon": ["icons/icon.ico", "icons/icon.png"]
+        }
 	}
 }

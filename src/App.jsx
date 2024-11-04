@@ -6,6 +6,7 @@ import ReleasePage from "./components/ReleasePage.jsx";
 import {Box, createTheme, CssBaseline, ThemeProvider, useTheme} from "@mui/material";
 import {invoke} from "@tauri-apps/api";
 import Commands from "./commands.js";
+import {Toaster} from "react-hot-toast";
 
 const rawSetting = await invoke(Commands.getSettings);
 
@@ -91,6 +92,8 @@ export default function App() {
 
             <Box>
                 <TitleMenu onPageChange={handlePageChange} occupyPos={false}/>
+
+                <Toaster/>
 
                 <Box mt={6.25}>
                     <CurrentPage/>

@@ -1,6 +1,6 @@
 import {alpha, Box, FormControl, IconButton, InputLabel, MenuItem, Select, Switch, TextField, Toolbar} from "@mui/material";
 import Typography from "@mui/material/Typography";
-import React from "react";
+import React, {useState} from "react";
 import Tooltip from "@mui/material/Tooltip";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from '@mui/icons-material/Add';
@@ -17,6 +17,10 @@ import Commands from "../commands.js";
 import {register, unregisterAll} from "@tauri-apps/api/globalShortcut";
 import {exists} from "@tauri-apps/api/fs";
 import {open} from "@tauri-apps/api/dialog";
+import {Keycap} from "keycap";
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
+import toast from "react-hot-toast";
 
 const columns = [
     'Key', 'Type', 'Value', 'Enabled'
@@ -44,7 +48,11 @@ const modKeys = {
     quote: "'",
     slash: "/",
     equal: "=",
-    minus: "-"
+    minus: "-",
+    semicolon: ";",
+    backslash: "\\",
+    bracketleft: "[",
+    bracketright: "]"
 };
 
 function getUuid() {
@@ -148,6 +156,7 @@ function TypeSelect(props) {
                     id="type-select"
                     value={currentType}
                     onChange={onTypeChange}
+                    variant="outlined"
                 >
                     <MenuItem value="Path">Path</MenuItem>
                     <MenuItem value="Shell">Shell Script</MenuItem>
@@ -161,6 +170,7 @@ function TypeSelect(props) {
 function RecordHotKeyField(props) {
     const { currentHotKey, onHotKeyChange, checkValid } = props;
     const [keys, { start, stop, isRecording }] = useRecordHotkeys();
+    const [recording, setRecording] = useState(false);
 
     let alphabet = [];
     for (let i = 0; i < 26; i ++) {
@@ -168,6 +178,7 @@ function RecordHotKeyField(props) {
     }
 
     function startRecordHotKey() {
+        setRecording(true);
         start();
     }
 
@@ -176,23 +187,21 @@ function RecordHotKeyField(props) {
         if (keys.size) {
             if (!checkValid || validKey()) {
                 onHotKeyChange(Array.from(keys).filter((v) => v !== 'unidentified'));
+            } else {
+                toast.error("Invalid keys");
             }
         }
+        setRecording(false);
     }
 
-    function keyListToString(keyList) {
-        let newKeys = [];
-        for (let i = 0; i < keyList.length; i++) {
-            if (keyList[i] === 'unidentified') {
-                continue;
-            }
-            if (modKeys.hasOwnProperty(keyList[i])) {
-                newKeys.push(modKeys[keyList[i]]);
-            } else {
-                newKeys.push(keyList[i].toUpperCase());
-            }
+    function keyToString(key) {
+        if (key === 'unidentified') {
+            return '';
         }
-        return newKeys.join(' + ');
+        if (modKeys.hasOwnProperty(key)) {
+            return modKeys[key];
+        }
+        return modKeys[key] || key.toUpperCase();
     }
 
     function validKey() {
@@ -214,19 +223,35 @@ function RecordHotKeyField(props) {
 
     return (
         <Box sx={{minWidth: 25, display: 'flex', flexDirection: 'row'}}>
-            <TextField
-                variant="outlined"
-                value={keyListToString(isRecording ? Array.from(keys) : currentHotKey)}
-                size="small"
-                onBlur={stopRecordHotKey}
-                onDoubleClick={startRecordHotKey}
-                inputProps={{
-                    readOnly: true,
-                }}
-                label="Double Click to Record"
-                sx={{ input: {cursor: 'pointer'}, flexGrow: 1 }}
-                error={!validKey() && checkValid}
-            />
+            <Box sx={{
+                display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center',
+                flexFlow: 'row wrap', gap: 1,
+            }}>
+                {
+                    (isRecording ? Array.from(keys) : currentHotKey).map((key, index) => (
+                        <Keycap
+                            activeKey={key}
+                            key={index}
+                            style={{padding: '5%', height: '50%'}}
+                        >
+                            {keyToString(key)}
+                        </Keycap>
+                    ))
+                }
+            </Box>
+            <IconButton onClick={() => {
+                if (recording) {
+                    stopRecordHotKey();
+                } else {
+                    startRecordHotKey();
+                }
+            }}>
+                {
+                    recording
+                        ? <StopCircleOutlinedIcon/>
+                        : <EditOutlinedIcon/>
+                }
+            </IconButton>
         </Box>
     );
 }
